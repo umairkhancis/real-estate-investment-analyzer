@@ -326,6 +326,11 @@
             background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
         }
 
+        .result-card.warning {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        }
+
         .result-card h4 {
             font-size: 0.9em;
             color: #666;
@@ -712,15 +717,19 @@
             <div class="input-grid">
                 <div class="input-group">
                     <label for="size">Property Size (sq ft)</label>
-                    <input type="number" id="size" value="1000" step="1">
+                    <input type="number" id="size" value="1189" step="1">
                 </div>
                 <div class="input-group">
                     <label for="totalValue">Total Property Value</label>
-                    <input type="text" id="totalValue" value="1,000,000" inputmode="numeric">
+                    <input type="text" id="totalValue" value="1,560,000" inputmode="numeric">
                 </div>
                 <div class="input-group">
                     <label for="downPayment">Down Payment (%)</label>
                     <input type="number" id="downPayment" value="20" step="1" min="0" max="100">
+                </div>
+                <div class="input-group">
+                    <label for="registrationFee">Govt. Registration Fee (%)</label>
+                    <input type="number" id="registrationFee" value="4" step="0.1" min="0" max="20">
                 </div>
                 <div class="input-group">
                     <label for="tenure">Loan Tenure (years)</label>
@@ -728,7 +737,7 @@
                 </div>
                 <div class="input-group">
                     <label for="discountRate">Annual Discount Rate (%)</label>
-                    <input type="number" id="discountRate" value="5" step="0.1" min="0" max="20">
+                    <input type="number" id="discountRate" value="4" step="0.1" min="0" max="20">
                 </div>
                 <div class="input-group">
                     <label for="rentalROI">Rental ROI (%)</label>
@@ -739,46 +748,117 @@
                     <input type="number" id="serviceCharges" value="10" step="0.1">
                 </div>
                 <div class="input-group">
-                    <label for="exitPrice">Exit Price (Future Sale Value)</label>
-                    <input type="text" id="exitPrice" value="1,300,000" inputmode="numeric">
+                    <label for="exitValue">Exit Value (Expected Sale Price)</label>
+                    <input type="text" id="exitValue" value="1,664,600" inputmode="numeric">
                 </div>
             </div>
 
             <button class="calculate-btn" onclick="calculate({ shouldScroll: true })">Calculate Investment Value</button>
 
             <div id="results" style="display: none;">
-                <div class="results-grid">
-                    <div class="result-card" id="npvCard">
-                        <h4>NPV (Net Present Value)</h4>
-                        <div class="value" id="npvValue">-</div>
-                        <div class="interpretation" id="npvInterpretation"></div>
+                <!-- Investment Status -->
+                <div id="investmentStatus" style="margin: 40px 0; padding: 0; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+                    <!-- Status Header -->
+                    <div id="statusHeader" style="padding: 40px 30px 30px 30px; text-align: center;">
+                        <div id="statusIcon" style="font-size: 4em; margin-bottom: 15px; line-height: 1;">-</div>
+                        <h2 id="statusTitle" style="margin: 0 0 12px 0; font-size: 2.8em; font-weight: 800; line-height: 1.2;">-</h2>
+                        <p id="statusDescription" style="margin: 0; font-size: 1.25em; opacity: 0.85; font-weight: 500;">-</p>
                     </div>
-                    <div class="result-card">
-                        <h4>Intrinsic Value</h4>
+
+                    <!-- Criteria Grid -->
+                    <div id="statusCriteria" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; border-top: 2px solid rgba(0,0,0,0.1);"></div>
+                </div>
+
+                <!-- Improvement Hints (only shown if not Great Investment) -->
+                <div id="improvementHints" style="display: none; margin: 30px 0; padding: 25px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);">
+                    <h3 style="color: white; margin: 0 0 15px 0; font-size: 1.4em; display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.3em;">💡</span> How to Turn This into a Great Investment
+                    </h3>
+                    <div id="hintsContent" style="color: rgba(255,255,255,0.95); font-size: 1.05em; line-height: 1.8;"></div>
+                </div>
+
+                <!-- Key Metrics -->
+                <h3 style="color: #667eea; margin: 30px 0 20px 0; font-size: 1.8em;">📊 Key Metrics</h3>
+                <div class="results-grid">
+                    <div class="result-card" id="dcfCard">
+                        <h4>DCF<br><span style="font-size: 0.65em; font-weight: 400; opacity: 0.8;">Intrinsic Value</span></h4>
                         <div class="value" id="dcfValue">-</div>
-                        <div class="interpretation">Total present value</div>
+                        <div class="interpretation" id="dcfInterpretation"></div>
                     </div>
                     <div class="result-card" id="irrCard">
-                        <h4>IRR (Smooth Annualized Return)</h4>
+                        <h4>IRR<br><span style="font-size: 0.65em; font-weight: 400; opacity: 0.8;">Annual Rate of Return</span></h4>
                         <div class="value" id="irrValue">-</div>
                         <div class="interpretation" id="irrInterpretation"></div>
                     </div>
+                    <div class="result-card" id="dscrCard">
+                        <h4>DSCR<br><span style="font-size: 0.65em; font-weight: 400; opacity: 0.8;">Debt Service Coverage Ratio</span></h4>
+                        <div class="value" id="dscrValue">-</div>
+                        <div class="interpretation" id="dscrInterpretation"></div>
+                    </div>
                     <div class="result-card" id="roicCard">
-                        <h4>ROIC (Return on Invested Capital)</h4>
+                        <h4>ROIC<br><span style="font-size: 0.65em; font-weight: 400; opacity: 0.8;">Return on Invested Capital</span></h4>
                         <div class="value" id="roicValue">-</div>
                         <div class="interpretation" id="roicInterpretation"></div>
                     </div>
-                    <div class="result-card" id="dscrCard">
-                        <h4>DSCR (Debt Service Coverage Ratio)</h4>
-                        <div class="value" id="dscrValue">-</div>
-                        <div class="interpretation" id="dscrInterpretation"></div>
+                </div>
+
+                <!-- All Computation Fields -->
+                <h3 style="color: #667eea; margin: 30px 0 20px 0; font-size: 1.8em;">💰 Detailed Computations</h3>
+                <div class="results-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div class="result-card">
+                        <h4>Price per Sq Ft</h4>
+                        <div class="value" id="pricePerSqFtValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Down Payment Amount</h4>
+                        <div class="value" id="downPaymentAmtValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Govt. Registration Fee</h4>
+                        <div class="value" id="landDeptFeeValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Agent Commission: 2%</h4>
+                        <div class="value" id="agentFeeValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Invested Capital</h4>
+                        <div class="value" id="investedCapitalValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Financing Amount</h4>
+                        <div class="value" id="financingAmountValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Rental Amount (Annual)</h4>
+                        <div class="value" id="annualRentalValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Service Charges (Annual)</h4>
+                        <div class="value" id="annualServiceChargesValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Net Operating Profit (Annual)</h4>
+                        <div class="value" id="netOperatingIncomeValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>EMI (Monthly)</h4>
+                        <div class="value" id="monthlyEMIValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Loan Amount (Annual)</h4>
+                        <div class="value" id="loanAmountAnnualizedValue" style="font-size: 1.5em;">-</div>
+                    </div>
+                    <div class="result-card">
+                        <h4>Net Cash Flow (Annual)</h4>
+                        <div class="value" id="netAnnualCashFlowValue" style="font-size: 1.5em;">-</div>
                     </div>
                 </div>
 
                 <div class="cash-flow-section">
                     <h3 class="cash-flow-title">Cash Flow Projection</h3>
                     <p style="text-align: center; color: #666; margin-bottom: 20px;">
-                        Year 0 (Initial Investment) → Year <span id="exitYearLabel">20</span> (Property Sale + Final Cash Flow)
+                        Year 0 (Initial Investment) → Year <span id="exitYearLabel">25</span> (Property Sale + Final Cash Flow)
                     </p>
                     <div class="cash-flow-grid" id="cashFlowGrid"></div>
                 </div>
@@ -807,47 +887,14 @@
         <p>&copy; 2024 Real Estate Investment Analyzer. For educational purposes only. Always consult with financial advisors before making investment decisions.</p>
     </footer>
 
+    <!-- Import Calculator Business Logic Module -->
+    <script src="calculator.js"></script>
+
+    <!-- UI Logic -->
     <script>
-        // Financial Calculation Functions
-        function PMT(rate, nper, pv) {
-            if (rate === 0) return -pv / nper;
-            const pvif = Math.pow(1 + rate, nper);
-            return rate / (pvif - 1) * -(pv * pvif);
-        }
-
-        function NPV_Excel(rate, futureCashFlows) {
-            let npv = 0;
-            for (let i = 0; i < futureCashFlows.length; i++) {
-                npv += futureCashFlows[i] / Math.pow(1 + rate, i + 1);
-            }
-            return npv;
-        }
-
-        function IRR(cashFlows, guess = 0.1) {
-            const maxIterations = 100;
-            const tolerance = 0.00001;
-
-            for (let i = 0; i < maxIterations; i++) {
-                let npv = 0;
-                let dnpv = 0;
-
-                for (let t = 0; t < cashFlows.length; t++) {
-                    npv += cashFlows[t] / Math.pow(1 + guess, t);
-                    dnpv += -t * cashFlows[t] / Math.pow(1 + guess, t + 1);
-                }
-
-                const newGuess = guess - npv / dnpv;
-
-                if (Math.abs(newGuess - guess) < tolerance) {
-                    return newGuess;
-                }
-
-                guess = newGuess;
-            }
-
-            return guess;
-        }
-
+        /**
+         * Format currency for display (thousands separator, no decimals)
+         */
         function formatCurrency(value) {
             return value.toLocaleString('en-US', {
                 minimumFractionDigits: 0,
@@ -855,134 +902,347 @@
             });
         }
 
+        /**
+         * Format number with commas (for input fields)
+         */
+        function formatWithCommas(value) {
+            const num = parseFloat(value.toString().replace(/,/g, ''));
+            if (isNaN(num)) return value;
+            return num.toLocaleString('en-US');
+        }
+
+        /**
+         * Main calculate function - Gets inputs from DOM, calls calculator module, updates UI
+         */
         function calculate({ shouldScroll = false } = {}) {
-            // Get inputs
-            const size = parseFloat(document.getElementById('size').value);
-            const totalValue = parseFloat(document.getElementById('totalValue').value.replace(/,/g, ''));
-            const downPaymentPct = parseFloat(document.getElementById('downPayment').value) / 100;
-            const tenure = parseFloat(document.getElementById('tenure').value);
-            const discountRate = parseFloat(document.getElementById('discountRate').value) / 100;
-            const rentalROI = parseFloat(document.getElementById('rentalROI').value) / 100;
-            const serviceChargePSF = parseFloat(document.getElementById('serviceCharges').value);
-            const terminalValueFV = parseFloat(document.getElementById('exitPrice').value.replace(/,/g, ''));
+            // Get inputs from form
+            const inputs = {
+                propertySize: parseFloat(document.getElementById('size').value),
+                totalValue: parseFloat(document.getElementById('totalValue').value.replace(/,/g, '')),
+                downPaymentPercent: parseFloat(document.getElementById('downPayment').value),
+                registrationFeePercent: parseFloat(document.getElementById('registrationFee').value),
+                tenure: parseFloat(document.getElementById('tenure').value),
+                discountRate: parseFloat(document.getElementById('discountRate').value),
+                rentalROI: parseFloat(document.getElementById('rentalROI').value),
+                serviceChargesPerSqFt: parseFloat(document.getElementById('serviceCharges').value),
+                exitValue: parseFloat(document.getElementById('exitValue').value.replace(/,/g, ''))
+            };
 
-            const exitYear = tenure;
-            const terminalValuePV = terminalValueFV / Math.pow(1 + discountRate, exitYear);
+            // Call calculator module to get results
+            const results = RealEstateCalculator.calculateInvestment(inputs);
 
-            // Calculations
-            const downPaymentAmt = totalValue * downPaymentPct;
-            const landDeptFee = totalValue * 0.04;
-            const agentFee = totalValue * 0.02;
-            const investedCapital = downPaymentAmt + landDeptFee + agentFee;
+            // Update UI with results
+            updateResultsDisplay(results);
 
-            const loanAmount = totalValue * (1 - downPaymentPct);
-            const monthlyEMI = PMT(discountRate / 12, tenure * 12, -loanAmount);
-            const annualDebtService = monthlyEMI * 12;
-
-            const annualRental = totalValue * rentalROI;
-            const annualServiceCharges = serviceChargePSF * size;
-            const netOperatingIncome = annualRental - annualServiceCharges;
-            const netAnnualCashFlow = netOperatingIncome - annualDebtService;
-
-            // NPV Calculation
-            const npvYears = 20;
-            const futureCashFlows = [];
-            for (let i = 1; i <= npvYears; i++) {
-                futureCashFlows.push(netAnnualCashFlow);
+            // Optionally scroll to results
+            if (shouldScroll) {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
+        }
 
-            const npvFuture = NPV_Excel(discountRate, futureCashFlows);
-            const dcfValue = npvFuture + terminalValuePV;
-            const npvValue = -investedCapital + dcfValue;
-
-            // IRR Calculation
-            const cashFlowsIRR = [-investedCapital];
-            for (let i = 1; i <= npvYears; i++) {
-                cashFlowsIRR.push(netAnnualCashFlow);
-            }
-            cashFlowsIRR.push(terminalValuePV);
-
-            const irrValue = IRR(cashFlowsIRR);
-
-            // Cash flows for visualization
-            const cashFlows = [-investedCapital];
-            for (let i = 1; i < exitYear; i++) {
-                cashFlows.push(netAnnualCashFlow);
-            }
-            cashFlows.push(netAnnualCashFlow + terminalValuePV);
-
-            // Calculate ratios
-            const dscr = netOperatingIncome / annualDebtService;
-            const roicValue = ((terminalValuePV - investedCapital) / investedCapital) * 100;
-
-            // Display results
+        /**
+         * Update all result displays in the DOM
+         */
+        function updateResultsDisplay(results) {
+            // Show results section
             document.getElementById('results').style.display = 'block';
 
-            // NPV
-            const npvCard = document.getElementById('npvCard');
-            document.getElementById('npvValue').textContent = formatCurrency(npvValue);
-            if (npvValue > 0) {
-                npvCard.classList.add('positive');
-                npvCard.classList.remove('negative');
-                document.getElementById('npvInterpretation').textContent = 'Creates value';
-            } else {
-                npvCard.classList.add('negative');
-                npvCard.classList.remove('positive');
-                document.getElementById('npvInterpretation').textContent = 'Destroys value';
+            // Determine Investment Status based on metric interpretations
+            const npvPositive = results.npv > 0;
+            const irrPercent = results.irr * 100;
+            const roicPercent = results.roic * 100;
+
+            // Define risk-free rate benchmark (typical treasury bonds)
+            const riskFreeRate = 4.0; // 4% as benchmark
+
+            // Interpret each metric
+            const interpretations = {
+                npv: {
+                    icon: '💰',
+                    label: 'NPV: Net Present Value',
+                    value: formatCurrency(results.npv),
+                    interpretation: npvPositive ? 'Creates value over time' : 'Erodes value over time',
+                    status: npvPositive ? 'positive' : 'negative',
+                    isStrong: npvPositive && results.npv > 100000,
+                    isAcceptable: npvPositive
+                },
+                irr: {
+                    icon: '📈',
+                    label: 'IRR: Internal Rate of Return',
+                    value: irrPercent.toFixed(2) + '%',
+                    interpretation: irrPercent > 6
+                        ? 'Strongly beats risk-free return'
+                        : irrPercent > riskFreeRate
+                            ? 'Marginally beats risk-free return'
+                            : irrPercent > 0
+                                ? 'Below risk-free return'
+                                : 'Negative return',
+                    status: irrPercent > 6 ? 'positive' : irrPercent > riskFreeRate ? 'acceptable' : 'negative',
+                    isStrong: irrPercent > 6,
+                    isAcceptable: irrPercent > riskFreeRate
+                },
+                dscr: {
+                    icon: '💵',
+                    label: 'DSCR: Debt Service Coverage',
+                    value: results.dscr.toFixed(2) + 'x',
+                    interpretation: results.dscr > 1.25
+                        ? 'Highly self-sustainable'
+                        : results.dscr >= 1.0
+                            ? 'Minimally self-sustainable'
+                            : 'Requires additional capital',
+                    status: results.dscr > 1.25 ? 'positive' : results.dscr >= 1.0 ? 'acceptable' : 'negative',
+                    isStrong: results.dscr > 1.25,
+                    isAcceptable: results.dscr >= 1.0
+                },
+                roic: {
+                    icon: '🚀',
+                    label: 'ROIC: Return on Invested Capital',
+                    value: roicPercent.toFixed(2) + '%',
+                    interpretation: roicPercent > 50
+                        ? 'Strong capital growth'
+                        : roicPercent > 20
+                            ? 'Moderate capital growth'
+                            : roicPercent > 0
+                                ? 'Weak capital growth'
+                                : 'Capital loss',
+                    status: roicPercent > 50 ? 'positive' : roicPercent > 20 ? 'acceptable' : 'negative',
+                    isStrong: roicPercent > 50,
+                    isAcceptable: roicPercent > 20
+                }
+            };
+
+            // Determine overall investment classification
+            const strongCount = Object.values(interpretations).filter(m => m.isStrong).length;
+            const acceptableCount = Object.values(interpretations).filter(m => m.isAcceptable).length;
+
+            let statusLevel = 'weak';
+            let statusTitle = '';
+            let statusDescription = '';
+            let statusIcon = '';
+            let headerBg = '';
+            let headerColor = '';
+
+            // Build dynamic description from interpretations
+            const descParts = [
+                interpretations.npv.interpretation,
+                interpretations.irr.interpretation.toLowerCase(),
+                interpretations.dscr.interpretation.toLowerCase(),
+                interpretations.roic.interpretation.toLowerCase()
+            ];
+
+            // Great: All 4 metrics are strong
+            if (strongCount === 4) {
+                statusLevel = 'great';
+                statusTitle = 'Great Investment';
+                statusDescription = descParts.join(', ');
+                statusIcon = '🎉';
+                headerBg = 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)';
+                headerColor = '#ffffff';
+            }
+            // Marginal: 3-4 metrics are acceptable (but not all strong)
+            else if (acceptableCount >= 3) {
+                statusLevel = 'marginal';
+                statusTitle = 'Marginal Investment';
+                statusDescription = descParts.join(', ');
+                statusIcon = '⚠️';
+                headerBg = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+                headerColor = '#ffffff';
+            }
+            // Weak: Less than 3 metrics acceptable
+            else {
+                statusLevel = 'weak';
+                statusTitle = 'Weak Investment';
+                statusDescription = descParts.join(', ');
+                statusIcon = '❌';
+                headerBg = 'linear-gradient(135deg, #eb3349 0%, #f45c43 100%)';
+                headerColor = '#ffffff';
             }
 
-            // DCF
-            document.getElementById('dcfValue').textContent = formatCurrency(dcfValue);
+            // Update Investment Status Display
+            const statusHeader = document.getElementById('statusHeader');
+            statusHeader.style.background = headerBg;
+            statusHeader.style.color = headerColor;
 
-            // IRR
+            document.getElementById('statusIcon').textContent = statusIcon;
+            document.getElementById('statusTitle').textContent = statusTitle;
+            document.getElementById('statusDescription').textContent = statusDescription;
+
+            // Update Criteria Grid with interpretations
+            const criteriaDiv = document.getElementById('statusCriteria');
+            criteriaDiv.innerHTML = Object.values(interpretations).map(metric => {
+                // Determine colors based on status
+                let bgColor, textColor, statusEmoji;
+                if (metric.status === 'positive') {
+                    bgColor = 'rgba(76, 175, 80, 0.1)';
+                    textColor = '#2e7d32';
+                    statusEmoji = '✅';
+                } else if (metric.status === 'acceptable') {
+                    bgColor = 'rgba(255, 193, 7, 0.1)';
+                    textColor = '#f57c00';
+                    statusEmoji = '⚠️';
+                } else {
+                    bgColor = 'rgba(244, 67, 54, 0.1)';
+                    textColor = '#c62828';
+                    statusEmoji = '❌';
+                }
+
+                return `
+                    <div style="
+                        padding: 25px 20px;
+                        background: ${bgColor};
+                        border-right: 1px solid rgba(0,0,0,0.05);
+                        border-bottom: 1px solid rgba(0,0,0,0.05);
+                        text-align: center;
+                        transition: all 0.3s ease;
+                    ">
+                        <div style="font-size: 2.5em; margin-bottom: 10px;">${metric.icon}</div>
+                        <div style="font-size: 0.75em; color: #666; margin-bottom: 8px; font-weight: 600; letter-spacing: 0.5px;">${metric.label}</div>
+                        <div style="font-size: 1.4em; font-weight: 700; color: #333; margin-bottom: 8px;">${metric.value}</div>
+                        <div style="font-size: 0.85em; color: ${textColor}; font-weight: 600; margin-bottom: 5px;">${metric.interpretation}</div>
+                        <div style="font-size: 1.5em;">${statusEmoji}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Generate Improvement Hints (only if not Great Investment)
+            const improvementHintsDiv = document.getElementById('improvementHints');
+            const hintsContentDiv = document.getElementById('hintsContent');
+
+            if (statusLevel !== 'great') {
+                const hints = [];
+
+                // Check which metrics need improvement and suggest inputs to change
+                if (!interpretations.npv.isStrong || results.npv <= 0) {
+                    hints.push('<strong>Increase Rental ROI</strong> or <strong>Exit Value</strong> to create more value over time');
+                }
+
+                if (!interpretations.irr.isStrong) {
+                    if (irrPercent < riskFreeRate) {
+                        hints.push('<strong>Increase Rental ROI</strong> to boost annual returns above risk-free rate');
+                    } else if (irrPercent <= 6) {
+                        hints.push('<strong>Increase Rental ROI</strong> or <strong>Exit Value</strong> to achieve strong returns (>6%)');
+                    }
+                }
+
+                if (!interpretations.dscr.isStrong) {
+                    if (results.dscr < 1.0) {
+                        hints.push('<strong>Reduce Total Property Value</strong> (less debt) or <strong>Increase Rental ROI</strong> to make investment self-sustainable');
+                    } else {
+                        hints.push('<strong>Increase Rental ROI</strong> to improve cash flow sustainability (target DSCR >1.25)');
+                    }
+                }
+
+                if (!interpretations.roic.isStrong) {
+                    if (roicPercent < 20) {
+                        hints.push('<strong>Increase Exit Value</strong> or <strong>Rental ROI</strong> to achieve positive capital growth');
+                    } else {
+                        hints.push('<strong>Increase Exit Value</strong> to boost return on invested capital (target >50%)');
+                    }
+                }
+
+                if (hints.length > 0) {
+                    improvementHintsDiv.style.display = 'block';
+                    hintsContentDiv.innerHTML = '<ul style="margin: 0; padding-left: 25px;">' +
+                        hints.map(h => `<li style="margin-bottom: 10px;">${h}</li>`).join('') +
+                        '</ul>';
+                } else {
+                    improvementHintsDiv.style.display = 'none';
+                }
+            } else {
+                improvementHintsDiv.style.display = 'none';
+            }
+
+            // Update Key Metrics
+            // DCF Card - Color based on whether it creates or destroys value
+            const dcfCard = document.getElementById('dcfCard');
+            document.getElementById('dcfValue').textContent = formatCurrency(results.dcf);
+
+            // DCF creates value when DCF > Invested Capital (i.e., NPV > 0)
+            if (results.npv > 0) {
+                dcfCard.classList.add('positive');
+                dcfCard.classList.remove('negative');
+                document.getElementById('dcfInterpretation').textContent = 'Creates value';
+            } else {
+                dcfCard.classList.add('negative');
+                dcfCard.classList.remove('positive');
+                document.getElementById('dcfInterpretation').textContent = 'Destroys value';
+            }
+
             const irrCard = document.getElementById('irrCard');
-            document.getElementById('irrValue').textContent = (irrValue * 100).toFixed(2) + '%';
-            if (irrValue > discountRate) {
+            document.getElementById('irrValue').textContent = (results.irr * 100).toFixed(2) + '%';
+            if (results.irr > results.discountRate) {
                 irrCard.classList.add('positive');
                 irrCard.classList.remove('negative');
-                document.getElementById('irrInterpretation').textContent = 'Exceeds hurdle rate';
+                document.getElementById('irrInterpretation').textContent = 'Exceeds hurdle';
             } else {
                 irrCard.classList.add('negative');
                 irrCard.classList.remove('positive');
-                document.getElementById('irrInterpretation').textContent = 'Below hurdle rate';
+                document.getElementById('irrInterpretation').textContent = 'Below hurdle';
             }
 
-            // ROIC
             const roicCard = document.getElementById('roicCard');
-            document.getElementById('roicValue').textContent = roicValue.toFixed(2) + '%';
-            if (roicValue > 100) {
+            document.getElementById('roicValue').textContent = (results.roic * 100).toFixed(2) + '%';
+            // Strong: > 50% (Green), Moderate: 20-50% (Yellow), Weak: < 20% (Red)
+            if (results.roic > 0.5) {
                 roicCard.classList.add('positive');
-                roicCard.classList.remove('negative');
+                roicCard.classList.remove('negative', 'warning');
                 document.getElementById('roicInterpretation').textContent = 'Strong return';
-            } else if (roicValue > 0) {
+            } else if (results.roic >= 0.2) {
+                roicCard.classList.add('warning');
                 roicCard.classList.remove('positive', 'negative');
                 document.getElementById('roicInterpretation').textContent = 'Moderate return';
+            } else if (results.roic > 0) {
+                roicCard.classList.add('negative');
+                roicCard.classList.remove('positive', 'warning');
+                document.getElementById('roicInterpretation').textContent = 'Weak return';
             } else {
                 roicCard.classList.add('negative');
-                roicCard.classList.remove('positive');
+                roicCard.classList.remove('positive', 'warning');
                 document.getElementById('roicInterpretation').textContent = 'Loss';
             }
 
-            // DSCR
             const dscrCard = document.getElementById('dscrCard');
-            document.getElementById('dscrValue').textContent = dscr.toFixed(2) + 'x';
-            if (dscr > 1.25) {
+            document.getElementById('dscrValue').textContent = results.dscr.toFixed(2) + 'x';
+            // Healthy: > 1.25 (Green), Tight: 1.0-1.25 (Yellow), Insufficient: < 1.0 (Red)
+            if (results.dscr > 1.25) {
                 dscrCard.classList.add('positive');
-                dscrCard.classList.remove('negative');
-                document.getElementById('dscrInterpretation').textContent = 'Healthy coverage';
-            } else if (dscr >= 1.0) {
+                dscrCard.classList.remove('negative', 'warning');
+                document.getElementById('dscrInterpretation').textContent = 'Healthy';
+            } else if (results.dscr >= 1.0) {
+                dscrCard.classList.add('warning');
                 dscrCard.classList.remove('positive', 'negative');
-                document.getElementById('dscrInterpretation').textContent = 'Tight coverage';
+                document.getElementById('dscrInterpretation').textContent = 'Tight';
             } else {
                 dscrCard.classList.add('negative');
-                dscrCard.classList.remove('positive');
+                dscrCard.classList.remove('positive', 'warning');
                 document.getElementById('dscrInterpretation').textContent = 'Insufficient';
             }
 
-            // Update exit year label
-            document.getElementById('exitYearLabel').textContent = exitYear;
+            // Update All Computation Fields
+            document.getElementById('pricePerSqFtValue').textContent = results.pricePerSqFt.toFixed(2);
+            document.getElementById('downPaymentAmtValue').textContent = formatCurrency(results.downPaymentAmt);
+            document.getElementById('landDeptFeeValue').textContent = formatCurrency(results.landDeptFee);
+            document.getElementById('agentFeeValue').textContent = formatCurrency(results.agentFee);
+            document.getElementById('investedCapitalValue').textContent = formatCurrency(results.investedCapital);
+            document.getElementById('financingAmountValue').textContent = formatCurrency(results.financingAmount);
+            document.getElementById('annualRentalValue').textContent = formatCurrency(results.annualRental);
+            document.getElementById('annualServiceChargesValue').textContent = formatCurrency(results.annualServiceCharges);
+            document.getElementById('netOperatingIncomeValue').textContent = formatCurrency(results.netOperatingIncome);
+            document.getElementById('monthlyEMIValue').textContent = formatCurrency(results.monthlyEMI);
+            document.getElementById('loanAmountAnnualizedValue').textContent = formatCurrency(results.loanAmountAnnualized);
+            document.getElementById('netAnnualCashFlowValue').textContent = formatCurrency(results.netAnnualCashFlow);
 
-            // Cash flow visualization
+            // Update exit year label
+            document.getElementById('exitYearLabel').textContent = results.exitYear;
+
+            // Update cash flow visualization
+            updateCashFlowVisualization(results.cashFlows);
+        }
+
+        /**
+         * Update cash flow visualization grid
+         */
+        function updateCashFlowVisualization(cashFlows) {
             const cashFlowGrid = document.getElementById('cashFlowGrid');
             cashFlowGrid.innerHTML = '';
 
@@ -990,11 +1250,8 @@
                 const item = document.createElement('div');
                 item.className = 'cash-flow-item ' + (cf < 0 ? 'negative' : 'positive');
 
-                const formattedAmount = Math.abs(cf) >= 1000000
-                    ? (cf/1000000).toFixed(1) + 'M'
-                    : Math.abs(cf) >= 1000
-                    ? (cf/1000).toFixed(0) + 'K'
-                    : cf.toFixed(0);
+                // Show accurate formatted values with commas, not rounded abbreviations
+                const formattedAmount = formatCurrency(Math.abs(cf));
 
                 item.innerHTML = `
                     <div class="cash-flow-year">Y${index}</div>
@@ -1003,18 +1260,6 @@
                 `;
                 cashFlowGrid.appendChild(item);
             });
-
-            // Scroll to results
-            if (shouldScroll) {
-                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
-
-        // Format number with commas
-        function formatWithCommas(value) {
-            const num = parseFloat(value.toString().replace(/,/g, ''));
-            if (isNaN(num)) return value;
-            return num.toLocaleString('en-US');
         }
 
         // Auto-calculate on input change (without scrolling)
@@ -1023,14 +1268,16 @@
         });
 
         // Format currency inputs on blur
-        ['totalValue', 'exitPrice'].forEach(id => {
+        ['totalValue', 'exitValue'].forEach(id => {
             const input = document.getElementById(id);
-            input.addEventListener('blur', () => {
-                input.value = formatWithCommas(input.value);
-            });
+            if (input) {
+                input.addEventListener('blur', () => {
+                    input.value = formatWithCommas(input.value);
+                });
+            }
         });
 
-        // Initial calculation
+        // Initial calculation on page load
         calculate();
     </script>
 
