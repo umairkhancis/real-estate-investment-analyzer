@@ -739,8 +739,8 @@
                     <input type="number" id="serviceCharges" value="10" step="0.1">
                 </div>
                 <div class="input-group">
-                    <label for="potentialPricePSF">Future Price per Sq Ft</label>
-                    <input type="number" id="potentialPricePSF" value="1300" step="1">
+                    <label for="exitPrice">Exit Price (Future Sale Value)</label>
+                    <input type="number" id="exitPrice" value="1300000" step="1000">
                 </div>
             </div>
 
@@ -864,12 +864,9 @@
             const discountRate = parseFloat(document.getElementById('discountRate').value) / 100;
             const rentalROI = parseFloat(document.getElementById('rentalROI').value) / 100;
             const serviceChargePSF = parseFloat(document.getElementById('serviceCharges').value);
-            const potentialPricePSF = parseFloat(document.getElementById('potentialPricePSF').value);
+            const terminalValueFV = parseFloat(document.getElementById('exitPrice').value);
 
             const exitYear = tenure;
-
-            // Calculate Terminal Value
-            const terminalValueFV = size * potentialPricePSF;
             const terminalValuePV = terminalValueFV / Math.pow(1 + discountRate, exitYear);
 
             // Calculations
