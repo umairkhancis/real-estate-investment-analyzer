@@ -2,14 +2,6 @@ import { useState, useCallback } from 'react';
 import { useAnalytics } from './useAnalytics';
 import { useFirestore } from './useFirestore';
 
-// Import the calculator logic
-const RealEstateCalculator = window.RealEstateCalculator || (() => {
-  // Fallback - will be replaced when calculator.js loads
-  return {
-    calculateInvestment: () => ({})
-  };
-})();
-
 export function useCalculator() {
   const [results, setResults] = useState(null);
   const [inputs, setInputs] = useState({
@@ -30,8 +22,20 @@ export function useCalculator() {
   const calculate = useCallback((newInputs) => {
     const calculationInputs = newInputs || inputs;
 
+    // Check if calculator is loaded
+    if (!window.RealEstateCalculator) {
+      console.error('RealEstateCalculator not loaded yet');
+      return null;
+    }
+
     // Calculate results using the existing calculator module
-    const calculatedResults = RealEstateCalculator.calculateInvestment(calculationInputs);
+    const calculatedResults = window.RealEstateCalculator.calculateInvestment(calculationInputs);
+
+    // Validate results
+    if (!calculatedResults || typeof calculatedResults.npv === 'undefined') {
+      console.error('Calculator returned invalid results');
+      return null;
+    }
 
     // Determine interpretations
     const npvPositive = calculatedResults.npv > 0;

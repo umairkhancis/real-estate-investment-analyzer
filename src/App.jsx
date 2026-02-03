@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Hero } from './components/Hero/Hero';
+import { EducationalSections } from './components/EducationalSections/EducationalSections';
 import { useCalculator } from './hooks/useCalculator';
 import { formatCurrency, formatPercentage } from './utils/formatters';
 import './App.css';
 
 function App() {
   const { inputs, setInputs, results, calculate } = useCalculator();
+  const [isDetailedBreakdownExpanded, setIsDetailedBreakdownExpanded] = useState(true);
 
   // Auto-calculate on mount
   useEffect(() => {
@@ -21,6 +23,7 @@ function App() {
   return (
     <div className="app">
       <Hero />
+      <EducationalSections />
 
       <section className="calculator-section" id="calculator">
         <div className="container">
@@ -163,30 +166,85 @@ function App() {
                 </div>
               </div>
 
-              {/* Additional Metrics */}
+              {/* Detailed Breakdown */}
               <div className="additional-metrics">
-                <h3>📋 Detailed Breakdown</h3>
-                <div className="metrics-list">
-                  <div className="metric-item">
-                    <span>NPV (Net Present Value):</span>
-                    <strong>{formatCurrency(results.npv)}</strong>
+                <div
+                  className="collapsible-header"
+                  onClick={() => setIsDetailedBreakdownExpanded(!isDetailedBreakdownExpanded)}
+                >
+                  <h3>💰 Detailed Breakdown</h3>
+                  <button className="toggle-button">
+                    {isDetailedBreakdownExpanded ? '▼' : '▶'}
+                  </button>
+                </div>
+                {isDetailedBreakdownExpanded && (
+                <div className="detailed-grid">
+                  <div className="detail-card">
+                    <h4>Price per Sq Ft</h4>
+                    <div className="detail-value">{results.pricePerSqFt?.toFixed(2) || 'N/A'}</div>
                   </div>
-                  <div className="metric-item">
-                    <span>Invested Capital:</span>
-                    <strong>{formatCurrency(results.investedCapital)}</strong>
+                  <div className="detail-card">
+                    <h4>Down Payment Amount</h4>
+                    <div className="detail-value">{formatCurrency(results.downPaymentAmt)}</div>
                   </div>
-                  <div className="metric-item">
-                    <span>Annual Rental Income:</span>
-                    <strong>{formatCurrency(results.annualRental)}</strong>
+                  <div className="detail-card">
+                    <h4>Govt. Registration Fee</h4>
+                    <div className="detail-value">{formatCurrency(results.landDeptFee)}</div>
                   </div>
-                  <div className="metric-item">
-                    <span>Monthly EMI:</span>
-                    <strong>{formatCurrency(results.monthlyEMI)}</strong>
+                  <div className="detail-card">
+                    <h4>Agent Commission: 2%</h4>
+                    <div className="detail-value">{formatCurrency(results.agentFee)}</div>
                   </div>
-                  <div className="metric-item">
-                    <span>Net Annual Cash Flow:</span>
-                    <strong>{formatCurrency(results.netAnnualCashFlow)}</strong>
+                  <div className="detail-card">
+                    <h4>Invested Capital</h4>
+                    <div className="detail-value">{formatCurrency(results.investedCapital)}</div>
                   </div>
+                  <div className="detail-card">
+                    <h4>Financing Amount</h4>
+                    <div className="detail-value">{formatCurrency(results.financingAmount)}</div>
+                  </div>
+                  <div className="detail-card">
+                    <h4>Rental Amount (Annual)</h4>
+                    <div className="detail-value">{formatCurrency(results.annualRental)}</div>
+                  </div>
+                  <div className="detail-card">
+                    <h4>Service Charges (Annual)</h4>
+                    <div className="detail-value">{formatCurrency(results.annualServiceCharges)}</div>
+                  </div>
+                  <div className="detail-card">
+                    <h4>Net Operating Profit (Annual)</h4>
+                    <div className="detail-value">{formatCurrency(results.netOperatingIncome)}</div>
+                  </div>
+                  <div className="detail-card">
+                    <h4>EMI (Monthly)</h4>
+                    <div className="detail-value">{formatCurrency(results.monthlyEMI)}</div>
+                  </div>
+                  <div className="detail-card">
+                    <h4>Loan Amount (Annual)</h4>
+                    <div className="detail-value">{formatCurrency(results.loanAmountAnnualized)}</div>
+                  </div>
+                  <div className="detail-card">
+                    <h4>Net Cash Flow (Annual)</h4>
+                    <div className="detail-value">{formatCurrency(results.netAnnualCashFlow)}</div>
+                  </div>
+                </div>
+                )}
+              </div>
+
+              {/* Cash Flow Projection */}
+              <div className="cash-flow-section">
+                <h3>📈 Cash Flow Projection</h3>
+                <p className="cash-flow-subtitle">
+                  Year 0 (Initial Investment) → Year {results.exitYear || inputs.tenure} (Property Sale + Final Cash Flow)
+                </p>
+                <div className="cash-flow-grid">
+                  {results.cashFlows?.map((cf, index) => (
+                    <div key={index} className={`cash-flow-item ${cf < 0 ? 'negative' : 'positive'}`}>
+                      <div className="cash-flow-year">Y{index}</div>
+                      <div className="cash-flow-arrow">{cf < 0 ? '↓' : '↑'}</div>
+                      <div className="cash-flow-amount">{formatCurrency(Math.abs(cf))}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

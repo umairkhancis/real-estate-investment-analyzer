@@ -241,3 +241,8 @@ const RealEstateCalculator = (function() {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = RealEstateCalculator;
 }
+
+// Export to window for browser use
+if (typeof window !== 'undefined') {
+    window.RealEstateCalculator = RealEstateCalculator;
+}

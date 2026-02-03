@@ -182,7 +182,7 @@
   border-radius: 8px;
 }
 
-/* Additional Metrics */
+/* Detailed Breakdown */
 .additional-metrics {
   background: #f8f9fa;
   padding: 30px;
@@ -190,12 +190,59 @@
   margin-top: 30px;
 }
 
-.metrics-list {
-  display: grid;
-  gap: 15px;
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 10px;
+  transition: background 0.2s ease;
 }
 
-.metric-item {
+.collapsible-header:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.collapsible-header h3 {
+  margin: 0;
+}
+
+.toggle-button {
+  background: transparent;
+  border: none;
+  font-size: 1.5em;
+  color: #667eea;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: transform 0.3s ease;
+}
+
+.toggle-button:hover {
+  transform: scale(1.2);
+}
+
+.detailed-grid {
+  display: grid;
+  gap: 15px;
+  animation: slideDown 0.3s ease-out;
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.detail-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -205,14 +252,87 @@
   border-left: 4px solid #667eea;
 }
 
-.metric-item span {
+.detail-card h4 {
   color: #666;
   font-weight: 500;
+  margin: 0;
+  font-size: 1em;
 }
 
-.metric-item strong {
+.detail-value {
   color: #333;
   font-size: 1.1em;
+  font-weight: 700;
+}
+
+/* Cash Flow Section */
+.cash-flow-section {
+  margin-top: 50px;
+  padding: 40px;
+  background: #f8f9fa;
+  border-radius: 15px;
+}
+
+.cash-flow-section h3 {
+  color: #667eea;
+  margin-bottom: 15px;
+  font-size: 1.8em;
+}
+
+.cash-flow-subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1.05em;
+}
+
+.cash-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.cash-flow-item {
+  text-align: center;
+  padding: 15px 5px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s;
+}
+
+.cash-flow-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.cash-flow-item.negative {
+  background: #ffe6e6;
+  border-color: #ffcccc;
+}
+
+.cash-flow-item.positive {
+  background: #e6ffe6;
+  border-color: #ccffcc;
+}
+
+.cash-flow-year {
+  font-size: 0.8em;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.cash-flow-arrow {
+  font-size: 1.5em;
+  margin: 5px 0;
+}
+
+.cash-flow-amount {
+  font-size: 0.75em;
+  color: #333;
+  font-weight: 500;
 }
 
 /* Footer */
@@ -256,5 +376,18 @@
 
   .status-description {
     font-size: 1.1em;
+  }
+
+  .additional-metrics {
+    padding: 20px;
+  }
+
+  .cash-flow-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+  }
+
+  .cash-flow-section {
+    padding: 25px 15px;
   }
 }
