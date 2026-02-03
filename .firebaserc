@@ -1,6 +1,6 @@
 {
   "projects": {
-    "staging": "realestate-investment-analyzer"
+    "prod": "realestate-investment-analyzer"
   },
   "targets": {},
   "etags": {}
