@@ -1,0 +1,260 @@
+/* App Container */
+.app {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+/* Calculator Section */
+.calculator-section {
+  padding: 80px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.container {
+  background: white;
+  border-radius: 20px;
+  padding: 50px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.container h2 {
+  color: #667eea;
+  font-size: 2.5em;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* Input Grid */
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-bottom: 50px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 0.95em;
+}
+
+.input-group input {
+  padding: 15px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 1.1em;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+/* Results Section */
+.results {
+  margin-top: 50px;
+}
+
+.results h3 {
+  color: #667eea;
+  font-size: 1.8em;
+  margin: 40px 0 20px 0;
+}
+
+/* Investment Status */
+.investment-status {
+  text-align: center;
+  padding: 50px;
+  border-radius: 20px;
+  margin-bottom: 50px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.investment-status.status-great {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+}
+
+.investment-status.status-marginal {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.investment-status.status-weak {
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+  color: white;
+}
+
+.status-icon {
+  font-size: 4em;
+  margin-bottom: 15px;
+}
+
+.investment-status h2 {
+  font-size: 2.8em;
+  margin: 0 0 20px 0;
+  color: white;
+}
+
+.status-description {
+  font-size: 1.3em;
+  opacity: 0.95;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.metric-card {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  border: 3px solid #e0e0e0;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.metric-card.positive {
+  border-color: #4CAF50;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(76, 175, 80, 0.1) 100%);
+}
+
+.metric-card.acceptable {
+  border-color: #ffc107;
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 193, 7, 0.1) 100%);
+}
+
+.metric-card.negative {
+  border-color: #f44336;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.05) 0%, rgba(244, 67, 54, 0.1) 100%);
+}
+
+.metric-card h4 {
+  color: #667eea;
+  font-size: 1.2em;
+  margin: 0 0 15px 0;
+  font-weight: 700;
+}
+
+.metric-value {
+  font-size: 2.2em;
+  font-weight: 800;
+  color: #333;
+  margin: 15px 0;
+}
+
+.metric-label {
+  font-size: 0.85em;
+  color: #666;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.interpretation {
+  font-size: 0.95em;
+  color: #555;
+  font-weight: 600;
+  padding: 10px;
+  background: rgba(0,0,0,0.03);
+  border-radius: 8px;
+}
+
+/* Additional Metrics */
+.additional-metrics {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 15px;
+  margin-top: 30px;
+}
+
+.metrics-list {
+  display: grid;
+  gap: 15px;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+  border-left: 4px solid #667eea;
+}
+
+.metric-item span {
+  color: #666;
+  font-weight: 500;
+}
+
+.metric-item strong {
+  color: #333;
+  font-size: 1.1em;
+}
+
+/* Footer */
+.footer {
+  background: #2c3e50;
+  color: white;
+  text-align: center;
+  padding: 40px 20px;
+  margin-top: 80px;
+}
+
+.footer p {
+  margin: 10px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 30px 20px;
+  }
+
+  .container h2 {
+    font-size: 1.8em;
+  }
+
+  .input-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .investment-status {
+    padding: 30px 20px;
+  }
+
+  .investment-status h2 {
+    font-size: 2em;
+  }
+
+  .status-description {
+    font-size: 1.1em;
+  }
+}
