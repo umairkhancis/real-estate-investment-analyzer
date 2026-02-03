@@ -268,21 +268,19 @@
 /* Cash Flow Section */
 .cash-flow-section {
   margin-top: 50px;
-  padding: 40px;
-  background: #f8f9fa;
-  border-radius: 15px;
 }
 
 .cash-flow-section h3 {
   color: #667eea;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   font-size: 1.8em;
+  font-weight: 600;
 }
 
 .cash-flow-subtitle {
   text-align: center;
   color: #666;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   font-size: 1.05em;
 }
 
@@ -385,9 +383,5 @@
   .cash-flow-grid {
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 10px;
-  }
-
-  .cash-flow-section {
-    padding: 25px 15px;
   }
 }
