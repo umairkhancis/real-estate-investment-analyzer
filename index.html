@@ -716,7 +716,7 @@
                 </div>
                 <div class="input-group">
                     <label for="totalValue">Total Property Value</label>
-                    <input type="number" id="totalValue" value="1000000" step="1000">
+                    <input type="text" id="totalValue" value="1,000,000" inputmode="numeric">
                 </div>
                 <div class="input-group">
                     <label for="downPayment">Down Payment (%)</label>
@@ -740,7 +740,7 @@
                 </div>
                 <div class="input-group">
                     <label for="exitPrice">Exit Price (Future Sale Value)</label>
-                    <input type="number" id="exitPrice" value="1300000" step="1000">
+                    <input type="text" id="exitPrice" value="1,300,000" inputmode="numeric">
                 </div>
             </div>
 
@@ -858,13 +858,13 @@
         function calculate({ shouldScroll = false } = {}) {
             // Get inputs
             const size = parseFloat(document.getElementById('size').value);
-            const totalValue = parseFloat(document.getElementById('totalValue').value);
+            const totalValue = parseFloat(document.getElementById('totalValue').value.replace(/,/g, ''));
             const downPaymentPct = parseFloat(document.getElementById('downPayment').value) / 100;
             const tenure = parseFloat(document.getElementById('tenure').value);
             const discountRate = parseFloat(document.getElementById('discountRate').value) / 100;
             const rentalROI = parseFloat(document.getElementById('rentalROI').value) / 100;
             const serviceChargePSF = parseFloat(document.getElementById('serviceCharges').value);
-            const terminalValueFV = parseFloat(document.getElementById('exitPrice').value);
+            const terminalValueFV = parseFloat(document.getElementById('exitPrice').value.replace(/,/g, ''));
 
             const exitYear = tenure;
             const terminalValuePV = terminalValueFV / Math.pow(1 + discountRate, exitYear);
@@ -1010,9 +1010,24 @@
             }
         }
 
+        // Format number with commas
+        function formatWithCommas(value) {
+            const num = parseFloat(value.toString().replace(/,/g, ''));
+            if (isNaN(num)) return value;
+            return num.toLocaleString('en-US');
+        }
+
         // Auto-calculate on input change (without scrolling)
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', () => calculate({ shouldScroll: false }));
+        });
+
+        // Format currency inputs on blur
+        ['totalValue', 'exitPrice'].forEach(id => {
+            const input = document.getElementById(id);
+            input.addEventListener('blur', () => {
+                input.value = formatWithCommas(input.value);
+            });
         });
 
         // Initial calculation
