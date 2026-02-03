@@ -855,7 +855,7 @@
             });
         }
 
-        function calculate() {
+        function calculate(shouldScroll = false) {
             // Get inputs
             const size = parseFloat(document.getElementById('size').value);
             const totalValue = parseFloat(document.getElementById('totalValue').value);
@@ -1008,7 +1008,9 @@
             });
 
             // Scroll to results
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            if (shouldScroll) {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         // Auto-calculate on input change
