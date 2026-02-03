@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Hero } from './components/Hero/Hero';
 import { EducationalSections } from './components/EducationalSections/EducationalSections';
+import { CurrencySelector } from './components/CurrencySelector/CurrencySelector';
 import { useCalculator } from './hooks/useCalculator';
 import { formatCurrency, formatPercentage } from './utils/formatters';
 import { currencies, getCurrencySymbol } from './utils/currencies';
@@ -45,17 +46,11 @@ function App() {
           <div className="input-grid">
             <div className="input-group">
               <label>Currency</label>
-              <select
+              <CurrencySelector
                 value={inputs.currency}
-                onChange={(e) => handleInputChange('currency', e.target.value)}
-                className="currency-select"
-              >
-                {currencies.map((curr) => (
-                  <option key={curr.code} value={curr.code}>
-                    {curr.code} - {curr.name} ({curr.symbol})
-                  </option>
-                ))}
-              </select>
+                onChange={(code) => handleInputChange('currency', code)}
+                currencies={currencies}
+              />
             </div>
 
             <div className="input-group">
