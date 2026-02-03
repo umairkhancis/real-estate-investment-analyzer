@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Investment Analyzer - Understand Before You Invest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #333;
+            line-height: 1.7;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            font-weight: 800;
+            margin-bottom: 25px;
+            line-height: 1.2;
+        }
+
+        .hero .subtitle {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .hero .description {
+            font-size: 1.15em;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 80px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .content-section.bg-light {
+            background: #f8f9fa;
+        }
+
+        .content-section.bg-gradient {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+        }
+
+        .content-section h2 {
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .content-section h3 {
+            font-size: 1.8em;
+            margin: 40px 0 20px 0;
+            color: #764ba2;
+            font-weight: 600;
+        }
+
+        .content-section p {
+            font-size: 1.15em;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .content-section strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Example Box */
+        .example-box {
+            background: #fff;
+            border-left: 5px solid #667eea;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .example-box h4 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .example-box p {
+            margin-bottom: 12px;
+            color: #666;
+        }
+
+        .example-box .highlight {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Formula Box */
+        .formula-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Concept Cards */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .concept-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .concept-card h4 {
+            color: #667eea;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .concept-card p {
+            font-size: 1em;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: inline-block;
+            padding: 18px 45px;
+            font-size: 1.2em;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            border: none;
+            text-align: center;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .cta-container {
+            text-align: center;
+            margin: 50px 0;
+        }
+
+        /* Calculator Section */
+        .calculator-section {
+            background: #f8f9fa;
+            padding: 80px 20px;
+        }
+
+        .calculator-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        }
+
+        .calculator-title {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .calculator-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.15em;
+            margin-bottom: 40px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .input-group input {
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.3em;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 30px 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .result-card.positive {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+
+        .result-card.negative {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        }
+
+        .result-card h4 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-card .value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .result-card .interpretation {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .cash-flow-section {
+            margin-top: 50px;
+        }
+
+        .cash-flow-title {
+            font-size: 1.8em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .cash-flow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .cash-flow-item {
+            text-align: center;
+            padding: 15px 5px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .cash-flow-item.negative {
+            background: #ffe6e6;
+            border-color: #ffcccc;
+        }
+
+        .cash-flow-item.positive {
+            background: #e6ffe6;
+            border-color: #ccffcc;
+        }
+
+        .cash-flow-year {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .cash-flow-amount {
+            font-size: 0.75em;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .cash-flow-arrow {
+            font-size: 1.5em;
+            margin: 5px 0;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .footer p {
+            opacity: 0.8;
+            font-size: 0.95em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2em;
+            }
+
+            .hero .subtitle {
+                font-size: 1.1em;
+            }
+
+            .content-section h2 {
+                font-size: 2em;
+            }
+
+            .content-section h3 {
+                font-size: 1.5em;
+            }
+
+            .calculator-container {
+                padding: 25px;
+            }
+
+            .cash-flow-grid {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Should You Really Buy That Property?</h1>
+            <p class="subtitle">Most investors rely on gut feeling or developer promises.</p>
+            <p class="description">What if you could see the true value of your investment before committing hundreds of thousands? Let's help you understand what your money will really be worth.</p>
+            <a href="#start-learning" class="cta-button">Show Me How</a>
+        </div>
+    </section>
+
+    <!-- The Problem -->
+    <section class="content-section">
+        <h2>Here's The Problem...</h2>
+        <p>You're excited about a property. The developer shows you beautiful brochures. They promise:</p>
+        <ul style="font-size: 1.15em; line-height: 2; color: #555; margin: 20px 0 20px 40px;">
+            <li>"This area will boom in 5 years!"</li>
+            <li>"Rental yields are amazing!"</li>
+            <li>"Property values always go up!"</li>
+        </ul>
+        <p>But here's what they <strong>don't</strong> tell you:</p>
+        <p><strong>Money today is not the same as money tomorrow.</strong></p>
+        <p>That property they're selling you for $500,000 today, promising it'll be worth $1,000,000 in 20 years? That future million dollars is NOT worth a million in today's terms.</p>
+        <p>Before you can make a smart investment decision, you need to understand one fundamental concept...</p>
+    </section>
+
+    <!-- Concept 1: Time Value of Money -->
+    <section class="content-section bg-light" id="start-learning">
+        <h2>💡 Understanding Time Value of Money</h2>
+        <p>Let me ask you a simple question:</p>
+        <p style="font-size: 1.3em; font-weight: 600; color: #667eea; margin: 30px 0;">Would you rather have $100 today or $100 in 5 years?</p>
+        <p>Easy answer, right? <strong>Today!</strong> But why?</p>
+
+        <div class="example-box">
+            <h4>📊 Here's Why:</h4>
+            <p><strong>If you have $100 today:</strong></p>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li>You could invest it in a bank at 5% annual interest</li>
+                <li>After 5 years: $100 × (1.05)^5 = <strong>$127.63</strong></li>
+            </ul>
+            <p style="margin-top: 15px;"><strong>If you wait 5 years for $100:</strong></p>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li>You get exactly $100</li>
+                <li>You've lost the opportunity to grow that money</li>
+            </ul>
+            <div class="highlight">
+                💡 Conclusion: $100 today is worth MORE than $100 in the future
+            </div>
+        </div>
+
+        <p>This simple concept is the foundation of all investment analysis. It's called the <strong>Time Value of Money</strong>.</p>
+
+        <div class="formula-box">
+            Future Value = Present Value × (1 + Rate)^Years
+        </div>
+
+        <p>Or flip it around:</p>
+
+        <div class="formula-box">
+            Present Value = Future Value ÷ (1 + Rate)^Years
+        </div>
+
+        <p>This second formula is crucial. It lets us take any future promise and calculate: <strong>"What is this really worth to me TODAY?"</strong></p>
+
+        <div class="cta-container">
+            <a href="#real-estate-context" class="cta-button">How Does This Apply to Real Estate?</a>
+        </div>
+    </section>
+
+    <!-- Concept 2: Applying to Real Estate -->
+    <section class="content-section" id="real-estate-context">
+        <h2>🏠 Now Let's Talk Real Estate</h2>
+        <p>When you buy a property for investment, you're not just buying walls and floors. You're buying a stream of future cash flows:</p>
+
+        <div class="concept-grid">
+            <div class="concept-card">
+                <h4>💸 Monthly Costs</h4>
+                <p>Mortgage payments, service charges, maintenance - money going OUT every month</p>
+            </div>
+            <div class="concept-card">
+                <h4>💰 Monthly Income</h4>
+                <p>Rental payments from tenants - money coming IN every month</p>
+            </div>
+            <div class="concept-card">
+                <h4>🎯 Exit Value</h4>
+                <p>When you sell in 20 years, the price you'll get - one big payment IN</p>
+            </div>
+        </div>
+
+        <p>Here's where it gets interesting:</p>
+
+        <div class="example-box">
+            <h4>🔍 Real Example:</h4>
+            <p>Imagine a property investment:</p>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>Today:</strong> You pay $100,000 down payment (money OUT)</li>
+                <li><strong>Years 1-20:</strong> Net cash flow = $500/month (money IN)</li>
+                <li><strong>Year 20:</strong> You sell for $300,000 (money IN)</li>
+            </ul>
+            <p style="margin-top: 15px;">Question: Is this a good investment?</p>
+            <div class="highlight">
+                ❌ WRONG Answer: "$100,000 out, $420,000 in ($6,000/year × 20 + $300,000 sale). Profit = $320,000!"
+            </div>
+            <div class="highlight" style="background: #d4edda; margin-top: 10px;">
+                ✅ RIGHT Answer: We need to discount all those future cash flows back to today's value!
+            </div>
+        </div>
+
+        <p>Remember: That $300,000 you'll get in 20 years is NOT worth $300,000 in today's money.</p>
+        <p>If we use a 6% discount rate, that $300,000 future value is only worth about <strong>$93,000</strong> in today's terms!</p>
+
+        <div class="cta-container">
+            <a href="#dcf-explanation" class="cta-button">Show Me How to Calculate This</a>
+        </div>
+    </section>
+
+    <!-- Concept 3: DCF Explanation -->
+    <section class="content-section bg-gradient" id="dcf-explanation">
+        <h2>📐 Introducing: Discounted Cash Flow (DCF)</h2>
+        <p>DCF is simply a fancy name for doing what we just learned - converting all future cash flows to today's value.</p>
+
+        <h3>Step 1: List All Cash Flows</h3>
+        <p>Write down every payment coming in and going out, year by year:</p>
+        <ul style="font-size: 1.1em; line-height: 2; color: #555; margin: 15px 0 15px 40px;">
+            <li>Year 0 (today): -$100,000 (your down payment)</li>
+            <li>Year 1: +$6,000 (net rental income)</li>
+            <li>Year 2: +$6,000</li>
+            <li>... continuing ...</li>
+            <li>Year 20: +$306,000 (last year's rent + sale price)</li>
+        </ul>
+
+        <h3>Step 2: Choose Your Discount Rate</h3>
+        <p>This is the rate of return you expect or could get elsewhere. Common choices:</p>
+        <ul style="font-size: 1.1em; line-height: 2; color: #555; margin: 15px 0 15px 40px;">
+            <li><strong>3-4%:</strong> Conservative (bank savings rate)</li>
+            <li><strong>5-7%:</strong> Moderate (stock market average)</li>
+            <li><strong>8-10%:</strong> Aggressive (higher risk investments)</li>
+        </ul>
+        <p>The higher your discount rate, the less valuable future money becomes.</p>
+
+        <h3>Step 3: Discount Each Cash Flow</h3>
+        <p>For each future payment, calculate its present value:</p>
+
+        <div class="formula-box">
+            PV = Cash Flow ÷ (1 + Rate)^Year
+        </div>
+
+        <div class="example-box">
+            <h4>Example with 6% discount rate:</h4>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li>Year 1: $6,000 ÷ (1.06)^1 = $5,660</li>
+                <li>Year 2: $6,000 ÷ (1.06)^2 = $5,340</li>
+                <li>Year 10: $6,000 ÷ (1.06)^10 = $3,350</li>
+                <li>Year 20 sale: $300,000 ÷ (1.06)^20 = $93,600</li>
+            </ul>
+        </div>
+
+        <h3>Step 4: Add Them All Up</h3>
+        <p>Sum all the present values. This gives you the <strong>total DCF value</strong> - what all future cash flows are worth TODAY.</p>
+
+        <h3>Step 5: Calculate Net Present Value (NPV)</h3>
+        <p>Subtract your initial investment:</p>
+
+        <div class="formula-box">
+            NPV = DCF Value - Initial Investment
+        </div>
+
+        <div class="example-box">
+            <h4>💡 What NPV Tells You:</h4>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>NPV > 0:</strong> Good investment! You're getting more value than you're paying</li>
+                <li><strong>NPV = 0:</strong> Break-even. You could do this or put money elsewhere</li>
+                <li><strong>NPV < 0:</strong> Bad investment! You're paying more than it's worth</li>
+            </ul>
+        </div>
+
+        <div class="cta-container">
+            <a href="#other-metrics" class="cta-button">What About Other Metrics?</a>
+        </div>
+    </section>
+
+    <!-- Concept 4: Other Metrics -->
+    <section class="content-section" id="other-metrics">
+        <h2>📊 Understanding the Key Metrics</h2>
+        <p>DCF and NPV are powerful, but investors use additional metrics to evaluate investments. Let's understand each one:</p>
+
+        <h3>1. Internal Rate of Return (IRR)</h3>
+        <div class="example-box">
+            <h4>What is it?</h4>
+            <p>IRR is the discount rate that makes your NPV equal to zero. In simpler terms: <strong>it's your actual annual return percentage</strong>.</p>
+            <h4>How to interpret:</h4>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li>IRR of 8% means you're earning 8% per year on your money</li>
+                <li>Compare IRR to other investments: If stocks return 7% and your IRR is 9%, real estate wins!</li>
+                <li>Compare IRR to your mortgage rate: If you borrow at 5% and IRR is 8%, you're making money on borrowed funds</li>
+            </ul>
+            <div class="highlight">
+                <strong>Rule of Thumb:</strong> Most real estate investors look for IRR > 6-8%
+            </div>
+        </div>
+
+        <h3>2. Return on Invested Capital (ROIC)</h3>
+        <div class="example-box">
+            <h4>What is it?</h4>
+            <p>ROIC shows your total return as a percentage of your initial investment.</p>
+            <div class="formula-box" style="margin: 15px 0;">
+                ROIC = (Final Value - Initial Investment) ÷ Initial Investment × 100%
+            </div>
+            <h4>How to interpret:</h4>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li>ROIC of 150% means you tripled your down payment</li>
+                <li>ROIC of 50% means you made half your money back in profit</li>
+                <li>Unlike IRR, this doesn't account for time - $100K turning into $200K is 100% ROIC whether it takes 5 years or 20 years</li>
+            </ul>
+            <div class="highlight">
+                <strong>Use it to:</strong> Quickly see your total profit multiple
+            </div>
+        </div>
+
+        <h3>3. Debt Service Coverage Ratio (DSCR)</h3>
+        <div class="example-box">
+            <h4>What is it?</h4>
+            <p>DSCR tells you if your rental income covers your mortgage payments.</p>
+            <div class="formula-box" style="margin: 15px 0;">
+                DSCR = Annual Rental Income ÷ Annual Mortgage Payment
+            </div>
+            <h4>How to interpret:</h4>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>DSCR > 1.0:</strong> ✅ Your rent covers the mortgage (positive cash flow!)</li>
+                <li><strong>DSCR = 1.0:</strong> ⚠️ Rent exactly equals mortgage (no buffer)</li>
+                <li><strong>DSCR < 1.0:</strong> ❌ Rent doesn't cover mortgage (you pay the difference each month)</li>
+            </ul>
+            <div class="highlight">
+                <strong>Banks love this metric!</strong> Most require DSCR > 1.25 for investment property loans
+            </div>
+        </div>
+
+        <h3>4. Putting It All Together</h3>
+        <p>Here's how to use these metrics together when evaluating a property:</p>
+
+        <div class="concept-grid">
+            <div class="concept-card">
+                <h4>✅ Great Investment</h4>
+                <p>NPV > 0, IRR > 8%, DSCR > 1.25, ROIC > 100%</p>
+            </div>
+            <div class="concept-card">
+                <h4>⚠️ Marginal Investment</h4>
+                <p>NPV slightly positive, IRR 4-6%, DSCR 1.0-1.2, ROIC 30-60%</p>
+            </div>
+            <div class="concept-card">
+                <h4>❌ Poor Investment</h4>
+                <p>NPV < 0, IRR < 4%, DSCR < 1.0, ROIC < 20%</p>
+            </div>
+        </div>
+
+        <div class="cta-container">
+            <a href="#calculator" class="cta-button">Ready to Calculate Your Investment</a>
+        </div>
+    </section>
+
+    <!-- Calculator Section -->
+    <section class="calculator-section" id="calculator">
+        <div class="calculator-container">
+            <h2 class="calculator-title">💰 Real Estate Investment Calculator</h2>
+            <p class="calculator-subtitle">Now that you understand the concepts, let's analyze your investment</p>
+
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="size">Property Size (sq ft)</label>
+                    <input type="number" id="size" value="832" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="totalValue">Total Property Value</label>
+                    <input type="number" id="totalValue" value="1600000" step="1000">
+                </div>
+                <div class="input-group">
+                    <label for="downPayment">Down Payment (%)</label>
+                    <input type="number" id="downPayment" value="25" step="1" min="0" max="100">
+                </div>
+                <div class="input-group">
+                    <label for="tenure">Loan Tenure (years)</label>
+                    <input type="number" id="tenure" value="20" step="1" min="1" max="30">
+                </div>
+                <div class="input-group">
+                    <label for="discountRate">Annual Discount Rate (%)</label>
+                    <input type="number" id="discountRate" value="6" step="0.1" min="0" max="20">
+                </div>
+                <div class="input-group">
+                    <label for="rentalROI">Rental ROI (%)</label>
+                    <input type="number" id="rentalROI" value="7" step="0.1" min="0" max="20">
+                </div>
+                <div class="input-group">
+                    <label for="serviceCharges">Service Charges (per sq ft/year)</label>
+                    <input type="number" id="serviceCharges" value="10" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="potentialPricePSF">Future Price per Sq Ft</label>
+                    <input type="number" id="potentialPricePSF" value="2000" step="1">
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculate()">Calculate Investment Value</button>
+
+            <div id="results" style="display: none;">
+                <div class="results-grid">
+                    <div class="result-card" id="npvCard">
+                        <h4>Net Present Value</h4>
+                        <div class="value" id="npvValue">-</div>
+                        <div class="interpretation" id="npvInterpretation"></div>
+                    </div>
+                    <div class="result-card">
+                        <h4>DCF Value</h4>
+                        <div class="value" id="dcfValue">-</div>
+                        <div class="interpretation">Total present value</div>
+                    </div>
+                    <div class="result-card" id="irrCard">
+                        <h4>IRR (Annual Return)</h4>
+                        <div class="value" id="irrValue">-</div>
+                        <div class="interpretation" id="irrInterpretation"></div>
+                    </div>
+                    <div class="result-card" id="roicCard">
+                        <h4>ROIC (Total Return)</h4>
+                        <div class="value" id="roicValue">-</div>
+                        <div class="interpretation" id="roicInterpretation"></div>
+                    </div>
+                    <div class="result-card" id="dscrCard">
+                        <h4>DSCR (Cash Flow)</h4>
+                        <div class="value" id="dscrValue">-</div>
+                        <div class="interpretation" id="dscrInterpretation"></div>
+                    </div>
+                </div>
+
+                <div class="cash-flow-section">
+                    <h3 class="cash-flow-title">Cash Flow Projection</h3>
+                    <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                        Year 0 (Initial Investment) → Year <span id="exitYearLabel">20</span> (Property Sale + Final Cash Flow)
+                    </p>
+                    <div class="cash-flow-grid" id="cashFlowGrid"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="content-section bg-light">
+        <h2>🎯 Make Informed Decisions</h2>
+        <p>You now understand more about real estate valuation than most investors. You know:</p>
+        <ul style="font-size: 1.15em; line-height: 2; color: #555; margin: 20px 0 20px 40px;">
+            <li>✅ Why future money is worth less than today's money</li>
+            <li>✅ How to calculate the true present value of any investment</li>
+            <li>✅ What NPV, IRR, ROIC, and DSCR mean and how to use them</li>
+            <li>✅ How to evaluate if a property is truly worth buying</li>
+        </ul>
+        <p style="font-size: 1.2em; font-weight: 600; color: #667eea; margin-top: 30px;">Don't invest based on promises. Invest based on numbers.</p>
+        <div class="cta-container">
+            <a href="#calculator" class="cta-button">Calculate Your Next Investment</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Real Estate Investment Analyzer. For educational purposes only. Always consult with financial advisors before making investment decisions.</p>
+    </footer>
+
+    <script>
+        // Financial Calculation Functions
+        function PMT(rate, nper, pv) {
+            if (rate === 0) return -pv / nper;
+            const pvif = Math.pow(1 + rate, nper);
+            return rate / (pvif - 1) * -(pv * pvif);
+        }
+
+        function NPV_Excel(rate, futureCashFlows) {
+            let npv = 0;
+            for (let i = 0; i < futureCashFlows.length; i++) {
+                npv += futureCashFlows[i] / Math.pow(1 + rate, i + 1);
+            }
+            return npv;
+        }
+
+        function IRR(cashFlows, guess = 0.1) {
+            const maxIterations = 100;
+            const tolerance = 0.00001;
+
+            for (let i = 0; i < maxIterations; i++) {
+                let npv = 0;
+                let dnpv = 0;
+
+                for (let t = 0; t < cashFlows.length; t++) {
+                    npv += cashFlows[t] / Math.pow(1 + guess, t);
+                    dnpv += -t * cashFlows[t] / Math.pow(1 + guess, t + 1);
+                }
+
+                const newGuess = guess - npv / dnpv;
+
+                if (Math.abs(newGuess - guess) < tolerance) {
+                    return newGuess;
+                }
+
+                guess = newGuess;
+            }
+
+            return guess;
+        }
+
+        function formatCurrency(value) {
+            return value.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+
+        function calculate() {
+            // Get inputs
+            const size = parseFloat(document.getElementById('size').value);
+            const totalValue = parseFloat(document.getElementById('totalValue').value);
+            const downPaymentPct = parseFloat(document.getElementById('downPayment').value) / 100;
+            const tenure = parseFloat(document.getElementById('tenure').value);
+            const discountRate = parseFloat(document.getElementById('discountRate').value) / 100;
+            const rentalROI = parseFloat(document.getElementById('rentalROI').value) / 100;
+            const serviceChargePSF = parseFloat(document.getElementById('serviceCharges').value);
+            const potentialPricePSF = parseFloat(document.getElementById('potentialPricePSF').value);
+
+            const exitYear = tenure;
+
+            // Calculate Terminal Value
+            const terminalValueFV = size * potentialPricePSF;
+            const terminalValuePV = terminalValueFV / Math.pow(1 + discountRate, exitYear);
+
+            // Calculations
+            const downPaymentAmt = totalValue * downPaymentPct;
+            const landDeptFee = totalValue * 0.04;
+            const agentFee = totalValue * 0.02;
+            const investedCapital = downPaymentAmt + landDeptFee + agentFee;
+
+            const loanAmount = totalValue * (1 - downPaymentPct);
+            const monthlyEMI = PMT(discountRate / 12, tenure * 12, -loanAmount);
+            const annualDebtService = monthlyEMI * 12;
+
+            const annualRental = totalValue * rentalROI;
+            const annualServiceCharges = serviceChargePSF * size;
+            const netOperatingIncome = annualRental - annualServiceCharges;
+            const netAnnualCashFlow = netOperatingIncome - annualDebtService;
+
+            // NPV Calculation
+            const npvYears = 20;
+            const futureCashFlows = [];
+            for (let i = 1; i <= npvYears; i++) {
+                futureCashFlows.push(netAnnualCashFlow);
+            }
+
+            const npvFuture = NPV_Excel(discountRate, futureCashFlows);
+            const dcfValue = npvFuture + terminalValuePV;
+            const npvValue = -investedCapital + dcfValue;
+
+            // IRR Calculation
+            const cashFlowsIRR = [-investedCapital];
+            for (let i = 1; i <= npvYears; i++) {
+                cashFlowsIRR.push(netAnnualCashFlow);
+            }
+            cashFlowsIRR.push(terminalValuePV);
+
+            const irrValue = IRR(cashFlowsIRR);
+
+            // Cash flows for visualization
+            const cashFlows = [-investedCapital];
+            for (let i = 1; i < exitYear; i++) {
+                cashFlows.push(netAnnualCashFlow);
+            }
+            cashFlows.push(netAnnualCashFlow + terminalValuePV);
+
+            // Calculate ratios
+            const dscr = netOperatingIncome / annualDebtService;
+            const roicValue = ((terminalValuePV - investedCapital) / investedCapital) * 100;
+
+            // Display results
+            document.getElementById('results').style.display = 'block';
+
+            // NPV
+            const npvCard = document.getElementById('npvCard');
+            document.getElementById('npvValue').textContent = formatCurrency(npvValue);
+            if (npvValue > 0) {
+                npvCard.classList.add('positive');
+                npvCard.classList.remove('negative');
+                document.getElementById('npvInterpretation').textContent = 'Creates value';
+            } else {
+                npvCard.classList.add('negative');
+                npvCard.classList.remove('positive');
+                document.getElementById('npvInterpretation').textContent = 'Destroys value';
+            }
+
+            // DCF
+            document.getElementById('dcfValue').textContent = formatCurrency(dcfValue);
+
+            // IRR
+            const irrCard = document.getElementById('irrCard');
+            document.getElementById('irrValue').textContent = (irrValue * 100).toFixed(2) + '%';
+            if (irrValue > discountRate) {
+                irrCard.classList.add('positive');
+                irrCard.classList.remove('negative');
+                document.getElementById('irrInterpretation').textContent = 'Exceeds hurdle rate';
+            } else {
+                irrCard.classList.add('negative');
+                irrCard.classList.remove('positive');
+                document.getElementById('irrInterpretation').textContent = 'Below hurdle rate';
+            }
+
+            // ROIC
+            const roicCard = document.getElementById('roicCard');
+            document.getElementById('roicValue').textContent = roicValue.toFixed(2) + '%';
+            if (roicValue > 100) {
+                roicCard.classList.add('positive');
+                roicCard.classList.remove('negative');
+                document.getElementById('roicInterpretation').textContent = 'Strong return';
+            } else if (roicValue > 0) {
+                roicCard.classList.remove('positive', 'negative');
+                document.getElementById('roicInterpretation').textContent = 'Moderate return';
+            } else {
+                roicCard.classList.add('negative');
+                roicCard.classList.remove('positive');
+                document.getElementById('roicInterpretation').textContent = 'Loss';
+            }
+
+            // DSCR
+            const dscrCard = document.getElementById('dscrCard');
+            document.getElementById('dscrValue').textContent = dscr.toFixed(2) + 'x';
+            if (dscr > 1.25) {
+                dscrCard.classList.add('positive');
+                dscrCard.classList.remove('negative');
+                document.getElementById('dscrInterpretation').textContent = 'Healthy coverage';
+            } else if (dscr >= 1.0) {
+                dscrCard.classList.remove('positive', 'negative');
+                document.getElementById('dscrInterpretation').textContent = 'Tight coverage';
+            } else {
+                dscrCard.classList.add('negative');
+                dscrCard.classList.remove('positive');
+                document.getElementById('dscrInterpretation').textContent = 'Insufficient';
+            }
+
+            // Update exit year label
+            document.getElementById('exitYearLabel').textContent = exitYear;
+
+            // Cash flow visualization
+            const cashFlowGrid = document.getElementById('cashFlowGrid');
+            cashFlowGrid.innerHTML = '';
+
+            cashFlows.forEach((cf, index) => {
+                const item = document.createElement('div');
+                item.className = 'cash-flow-item ' + (cf < 0 ? 'negative' : 'positive');
+
+                const formattedAmount = Math.abs(cf) >= 1000000
+                    ? (cf/1000000).toFixed(1) + 'M'
+                    : Math.abs(cf) >= 1000
+                    ? (cf/1000).toFixed(0) + 'K'
+                    : cf.toFixed(0);
+
+                item.innerHTML = `
+                    <div class="cash-flow-year">Y${index}</div>
+                    <div class="cash-flow-arrow">${cf < 0 ? '↓' : '↑'}</div>
+                    <div class="cash-flow-amount">${formattedAmount}</div>
+                `;
+                cashFlowGrid.appendChild(item);
+            });
+
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Auto-calculate on input change
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('change', calculate);
+        });
+
+        // Initial calculation
+        calculate();
+    </script>
+
+</body>
+</html>
