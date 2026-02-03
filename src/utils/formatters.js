@@ -1,8 +1,11 @@
+import { getCurrencySymbol } from './currencies';
+
 /**
- * Format number as currency with AED symbol
+ * Format number as currency with selected currency symbol
  */
-export function formatCurrency(amount) {
-  return 'AED ' + Math.round(amount).toLocaleString('en-US');
+export function formatCurrency(amount, currencyCode = 'AED') {
+  const symbol = getCurrencySymbol(currencyCode);
+  return symbol + ' ' + Math.round(amount).toLocaleString('en-US');
 }
 
 /**

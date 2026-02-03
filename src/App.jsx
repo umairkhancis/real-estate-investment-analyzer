@@ -3,6 +3,7 @@ import { Hero } from './components/Hero/Hero';
 import { EducationalSections } from './components/EducationalSections/EducationalSections';
 import { useCalculator } from './hooks/useCalculator';
 import { formatCurrency, formatPercentage } from './utils/formatters';
+import { currencies, getCurrencySymbol } from './utils/currencies';
 import './App.css';
 
 function App() {
@@ -23,7 +24,10 @@ function App() {
   }, []);
 
   const handleInputChange = (field, value) => {
-    const newInputs = { ...inputs, [field]: parseFloat(value) || 0 };
+    const newInputs = {
+      ...inputs,
+      [field]: field === 'currency' ? value : (parseFloat(value) || 0)
+    };
     setInputs(newInputs);
     calculate(newInputs);
   };
@@ -40,6 +44,21 @@ function App() {
           {/* Input Form */}
           <div className="input-grid">
             <div className="input-group">
+              <label>Currency</label>
+              <select
+                value={inputs.currency}
+                onChange={(e) => handleInputChange('currency', e.target.value)}
+                className="currency-select"
+              >
+                {currencies.map((curr) => (
+                  <option key={curr.code} value={curr.code}>
+                    {curr.code} - {curr.name} ({curr.symbol})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="input-group">
               <label>Property Size (sq ft)</label>
               <input
                 type="number"
@@ -49,7 +68,7 @@ function App() {
             </div>
 
             <div className="input-group">
-              <label>Total Property Value (AED)</label>
+              <label>Total Property Value</label>
               <input
                 type="number"
                 value={inputs.totalValue}
@@ -112,7 +131,7 @@ function App() {
             </div>
 
             <div className="input-group">
-              <label>Exit Value (AED)</label>
+              <label>Exit Value (Expected Sale Price)</label>
               <input
                 type="number"
                 value={inputs.exitValue}
@@ -145,7 +164,7 @@ function App() {
               <div className="metrics-grid">
                 <div className={`metric-card ${results.interpretations?.npv?.status || ''}`}>
                   <h4>DCF</h4>
-                  <div className="metric-value">{formatCurrency(results.dcf || 0)}</div>
+                  <div className="metric-value">{formatCurrency(results.dcf || 0, inputs.currency)}</div>
                   <div className="metric-label">Intrinsic Value</div>
                   <div className="interpretation">
                     {results.npv > 0 ? 'Creates value' : 'Destroys value'}
@@ -189,51 +208,53 @@ function App() {
                 <div className="detailed-grid">
                   <div className="detail-card">
                     <h4>Price per Sq Ft</h4>
-                    <div className="detail-value">{results.pricePerSqFt?.toFixed(2) || 'N/A'}</div>
+                    <div className="detail-value">
+                      {results.pricePerSqFt ? `${getCurrencySymbol(inputs.currency)} ${results.pricePerSqFt.toFixed(2)}` : 'N/A'}
+                    </div>
                   </div>
                   <div className="detail-card">
                     <h4>Down Payment Amount</h4>
-                    <div className="detail-value">{formatCurrency(results.downPaymentAmt)}</div>
+                    <div className="detail-value">{formatCurrency(results.downPaymentAmt, inputs.currency)}</div>
                   </div>
                   <div className="detail-card">
                     <h4>Govt. Registration Fee</h4>
-                    <div className="detail-value">{formatCurrency(results.landDeptFee)}</div>
+                    <div className="detail-value">{formatCurrency(results.landDeptFee, inputs.currency)}</div>
                   </div>
                   <div className="detail-card">
                     <h4>Agent Commission: 2%</h4>
-                    <div className="detail-value">{formatCurrency(results.agentFee)}</div>
+                    <div className="detail-value">{formatCurrency(results.agentFee, inputs.currency)}</div>
                   </div>
                   <div className="detail-card">
                     <h4>Invested Capital</h4>
-                    <div className="detail-value">{formatCurrency(results.investedCapital)}</div>
+                    <div className="detail-value">{formatCurrency(results.investedCapital, inputs.currency)}</div>
                   </div>
                   <div className="detail-card">
                     <h4>Financing Amount</h4>
-                    <div className="detail-value">{formatCurrency(results.financingAmount)}</div>
+                    <div className="detail-value">{formatCurrency(results.financingAmount, inputs.currency)}</div>
                   </div>
                   <div className="detail-card">
                     <h4>Rental Amount (Annual)</h4>
-                    <div className="detail-value">{formatCurrency(results.annualRental)}</div>
+                    <div className="detail-value">{formatCurrency(results.annualRental, inputs.currency)}</div>
                   </div>
                   <div className="detail-card">
                     <h4>Service Charges (Annual)</h4>
-                    <div className="detail-value">{formatCurrency(results.annualServiceCharges)}</div>
+                    <div className="detail-value">{formatCurrency(results.annualServiceCharges, inputs.currency)}</div>
                   </div>
                   <div className="detail-card">
                     <h4>Net Operating Profit (Annual)</h4>
-                    <div className="detail-value">{formatCurrency(results.netOperatingIncome)}</div>
+                    <div className="detail-value">{formatCurrency(results.netOperatingIncome, inputs.currency)}</div>
                   </div>
                   <div className="detail-card">
                     <h4>EMI (Monthly)</h4>
-                    <div className="detail-value">{formatCurrency(results.monthlyEMI)}</div>
+                    <div className="detail-value">{formatCurrency(results.monthlyEMI, inputs.currency)}</div>
                   </div>
                   <div className="detail-card">
                     <h4>Loan Amount (Annual)</h4>
-                    <div className="detail-value">{formatCurrency(results.loanAmountAnnualized)}</div>
+                    <div className="detail-value">{formatCurrency(results.loanAmountAnnualized, inputs.currency)}</div>
                   </div>
                   <div className="detail-card">
                     <h4>Net Cash Flow (Annual)</h4>
-                    <div className="detail-value">{formatCurrency(results.netAnnualCashFlow)}</div>
+                    <div className="detail-value">{formatCurrency(results.netAnnualCashFlow, inputs.currency)}</div>
                   </div>
                 </div>
                 )}
@@ -250,7 +271,7 @@ function App() {
                     <div key={index} className={`cash-flow-item ${cf < 0 ? 'negative' : 'positive'}`}>
                       <div className="cash-flow-year">Y{index}</div>
                       <div className="cash-flow-arrow">{cf < 0 ? '↓' : '↑'}</div>
-                      <div className="cash-flow-amount">{formatCurrency(Math.abs(cf))}</div>
+                      <div className="cash-flow-amount">{formatCurrency(Math.abs(cf), inputs.currency)}</div>
                     </div>
                   ))}
                 </div>

@@ -13,7 +13,8 @@ export function useCalculator() {
     discountRate: 4,
     rentalROI: 6,
     serviceChargesPerSqFt: 10,
-    exitValue: 1664600
+    exitValue: 1664600,
+    currency: 'AED'
   });
 
   const { trackCalculation } = useAnalytics();
