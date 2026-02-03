@@ -712,27 +712,27 @@
             <div class="input-grid">
                 <div class="input-group">
                     <label for="size">Property Size (sq ft)</label>
-                    <input type="number" id="size" value="832" step="1">
+                    <input type="number" id="size" value="1189" step="1">
                 </div>
                 <div class="input-group">
                     <label for="totalValue">Total Property Value</label>
-                    <input type="number" id="totalValue" value="1600000" step="1000">
+                    <input type="number" id="totalValue" value="1560000" step="1000">
                 </div>
                 <div class="input-group">
                     <label for="downPayment">Down Payment (%)</label>
-                    <input type="number" id="downPayment" value="25" step="1" min="0" max="100">
+                    <input type="number" id="downPayment" value="20" step="1" min="0" max="100">
                 </div>
                 <div class="input-group">
                     <label for="tenure">Loan Tenure (years)</label>
-                    <input type="number" id="tenure" value="20" step="1" min="1" max="30">
+                    <input type="number" id="tenure" value="25" step="1" min="1" max="30">
                 </div>
                 <div class="input-group">
                     <label for="discountRate">Annual Discount Rate (%)</label>
-                    <input type="number" id="discountRate" value="6" step="0.1" min="0" max="20">
+                    <input type="number" id="discountRate" value="5" step="0.1" min="0" max="20">
                 </div>
                 <div class="input-group">
                     <label for="rentalROI">Rental ROI (%)</label>
-                    <input type="number" id="rentalROI" value="7" step="0.1" min="0" max="20">
+                    <input type="number" id="rentalROI" value="6" step="0.1" min="0" max="20">
                 </div>
                 <div class="input-group">
                     <label for="serviceCharges">Service Charges (per sq ft/year)</label>
@@ -740,11 +740,11 @@
                 </div>
                 <div class="input-group">
                     <label for="potentialPricePSF">Future Price per Sq Ft</label>
-                    <input type="number" id="potentialPricePSF" value="2000" step="1">
+                    <input type="number" id="potentialPricePSF" value="1300" step="1">
                 </div>
             </div>
 
-            <button class="calculate-btn" onclick="calculate()">Calculate Investment Value</button>
+            <button class="calculate-btn" onclick="calculate({ shouldScroll: true })">Calculate Investment Value</button>
 
             <div id="results" style="display: none;">
                 <div class="results-grid">
@@ -764,12 +764,12 @@
                         <div class="interpretation" id="irrInterpretation"></div>
                     </div>
                     <div class="result-card" id="roicCard">
-                        <h4>ROIC (Total Return)</h4>
+                        <h4>ROIC (Return on Invested Capital)</h4>
                         <div class="value" id="roicValue">-</div>
                         <div class="interpretation" id="roicInterpretation"></div>
                     </div>
                     <div class="result-card" id="dscrCard">
-                        <h4>DSCR (Cash Flow)</h4>
+                        <h4>DSCR (Debt Service Coverage Ratio)</h4>
                         <div class="value" id="dscrValue">-</div>
                         <div class="interpretation" id="dscrInterpretation"></div>
                     </div>
@@ -855,7 +855,7 @@
             });
         }
 
-        function calculate(shouldScroll = false) {
+        function calculate({ shouldScroll = false } = {}) {
             // Get inputs
             const size = parseFloat(document.getElementById('size').value);
             const totalValue = parseFloat(document.getElementById('totalValue').value);
@@ -1013,9 +1013,9 @@
             }
         }
 
-        // Auto-calculate on input change
+        // Auto-calculate on input change (without scrolling)
         document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('change', calculate);
+            input.addEventListener('input', () => calculate({ shouldScroll: false }));
         });
 
         // Initial calculation
