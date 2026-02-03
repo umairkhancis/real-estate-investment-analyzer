@@ -1,0 +1,33 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "calculations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "results.status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "calculations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "results.irr",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

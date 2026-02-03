@@ -446,6 +446,36 @@
             }
         }
     </style>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-performance-compat.js"></script>
+
+    <!-- Initialize Firebase -->
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAGkI-mkucmWRH8jmwjkCL0ALQrMblTFw4",
+            authDomain: "realestate-investment-analyzer.firebaseapp.com",
+            projectId: "realestate-investment-analyzer",
+            storageBucket: "realestate-investment-analyzer.firebasestorage.app",
+            messagingSenderId: "912317025442",
+            appId: "1:912317025442:web:cf1e193e659ab44c115bfb",
+            measurementId: "G-ZLMHQN43TJ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Initialize services
+        const analytics = firebase.analytics();
+        const db = firebase.firestore();
+        const perf = firebase.performance();
+
+        console.log('🔥 Firebase initialized successfully!');
+    </script>
 </head>
 <body>
 
@@ -1237,6 +1267,80 @@
 
             // Update cash flow visualization
             updateCashFlowVisualization(results.cashFlows);
+
+            // 🔥 Firebase Analytics - Track calculation event
+            try {
+                analytics.logEvent('calculation_performed', {
+                    investment_status: statusLevel,
+                    npv_positive: npvPositive,
+                    irr_category: irrPercent > 6 ? 'strong' : irrPercent > riskFreeRate ? 'marginal' : 'weak',
+                    dscr_category: results.dscr > 1.25 ? 'healthy' : results.dscr >= 1.0 ? 'tight' : 'insufficient',
+                    roic_category: roicPercent > 50 ? 'strong' : roicPercent > 20 ? 'moderate' : 'weak',
+                    strong_metrics_count: strongCount,
+                    acceptable_metrics_count: acceptableCount
+                });
+
+                console.log('📊 Analytics event tracked: calculation_performed');
+            } catch (error) {
+                console.error('Analytics error:', error);
+            }
+
+            // 🔥 Firebase Firestore - Save calculation data
+            try {
+                // Get inputs from form for storage
+                const savedInputs = {
+                    propertySize: parseFloat(document.getElementById('size').value),
+                    totalValue: parseFloat(document.getElementById('totalValue').value.replace(/,/g, '')),
+                    downPaymentPercent: parseFloat(document.getElementById('downPayment').value),
+                    registrationFeePercent: parseFloat(document.getElementById('registrationFee').value),
+                    tenure: parseFloat(document.getElementById('tenure').value),
+                    discountRate: parseFloat(document.getElementById('discountRate').value),
+                    rentalROI: parseFloat(document.getElementById('rentalROI').value),
+                    serviceChargesPerSqFt: parseFloat(document.getElementById('serviceCharges').value),
+                    exitValue: parseFloat(document.getElementById('exitValue').value.replace(/,/g, ''))
+                };
+
+                db.collection('calculations').add({
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+
+                    // Inputs (anonymized - no PII)
+                    inputs: savedInputs,
+
+                    // Results
+                    results: {
+                        status: statusLevel,
+                        dcf: Math.round(results.dcf),
+                        npv: Math.round(results.npv),
+                        irr: Math.round(results.irr * 10000) / 100, // Store as percentage with 2 decimals
+                        dscr: Math.round(results.dscr * 100) / 100,
+                        roic: Math.round(results.roic * 10000) / 100,
+                        investedCapital: Math.round(results.investedCapital)
+                    },
+
+                    // Interpretations
+                    interpretations: {
+                        npv: interpretations.npv.interpretation,
+                        irr: interpretations.irr.interpretation,
+                        dscr: interpretations.dscr.interpretation,
+                        roic: interpretations.roic.interpretation
+                    },
+
+                    // Metadata
+                    strongMetrics: strongCount,
+                    acceptableMetrics: acceptableCount,
+                    userAgent: navigator.userAgent,
+                    screenWidth: window.innerWidth,
+                    screenHeight: window.innerHeight
+                })
+                .then(docRef => {
+                    console.log('💾 Calculation saved to Firestore:', docRef.id);
+                })
+                .catch(error => {
+                    console.error('Firestore error:', error);
+                });
+            } catch (error) {
+                console.error('Firestore error:', error);
+            }
         }
 
         /**
@@ -1274,6 +1378,54 @@
                 input.addEventListener('blur', () => {
                     input.value = formatWithCommas(input.value);
                 });
+            }
+        });
+
+        // 🔥 Track input changes for analytics
+        let inputChangeTimeout;
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('change', () => {
+                // Debounce to avoid too many events
+                clearTimeout(inputChangeTimeout);
+                inputChangeTimeout = setTimeout(() => {
+                    try {
+                        analytics.logEvent('input_changed', {
+                            field_name: input.id,
+                            field_type: input.type
+                        });
+                    } catch (error) {
+                        console.error('Analytics error:', error);
+                    }
+                }, 500);
+            });
+        });
+
+        // 🔥 Track page load
+        window.addEventListener('load', () => {
+            try {
+                analytics.logEvent('page_view', {
+                    page_title: document.title,
+                    page_location: window.location.href
+                });
+                console.log('📊 Analytics: Page view tracked');
+            } catch (error) {
+                console.error('Analytics error:', error);
+            }
+        });
+
+        // 🔥 Track scroll depth
+        let maxScroll = 0;
+        window.addEventListener('scroll', () => {
+            const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+            if (scrollPercent > maxScroll && scrollPercent % 25 === 0) {
+                maxScroll = scrollPercent;
+                try {
+                    analytics.logEvent('scroll', {
+                        percent: scrollPercent
+                    });
+                } catch (error) {
+                    console.error('Analytics error:', error);
+                }
             }
         });
 
