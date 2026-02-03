@@ -9,9 +9,17 @@ function App() {
   const { inputs, setInputs, results, calculate } = useCalculator();
   const [isDetailedBreakdownExpanded, setIsDetailedBreakdownExpanded] = useState(true);
 
-  // Auto-calculate on mount
+  // Auto-calculate on mount after calculator is loaded
   useEffect(() => {
-    calculate();
+    const initCalculator = () => {
+      if (window.RealEstateCalculator) {
+        calculate();
+      } else {
+        // Wait for calculator to load
+        setTimeout(initCalculator, 100);
+      }
+    };
+    initCalculator();
   }, []);
 
   const handleInputChange = (field, value) => {
@@ -128,41 +136,41 @@ function App() {
                   {results.status === 'weak' && 'Weak Investment'}
                 </h2>
                 <p className="status-description">
-                  {results.interpretations.npv.interpretation}, {results.interpretations.irr.interpretation.toLowerCase()}, {results.interpretations.dscr.interpretation.toLowerCase()}, {results.interpretations.roic.interpretation.toLowerCase()}
+                  {results.interpretations?.npv?.interpretation || ''}, {results.interpretations?.irr?.interpretation?.toLowerCase() || ''}, {results.interpretations?.dscr?.interpretation?.toLowerCase() || ''}, {results.interpretations?.roic?.interpretation?.toLowerCase() || ''}
                 </p>
               </div>
 
               {/* Key Metrics */}
               <h3>📊 Key Metrics</h3>
               <div className="metrics-grid">
-                <div className={`metric-card ${results.interpretations.npv.status}`}>
+                <div className={`metric-card ${results.interpretations?.npv?.status || ''}`}>
                   <h4>DCF</h4>
-                  <div className="metric-value">{formatCurrency(results.dcf)}</div>
+                  <div className="metric-value">{formatCurrency(results.dcf || 0)}</div>
                   <div className="metric-label">Intrinsic Value</div>
                   <div className="interpretation">
                     {results.npv > 0 ? 'Creates value' : 'Destroys value'}
                   </div>
                 </div>
 
-                <div className={`metric-card ${results.interpretations.irr.status}`}>
+                <div className={`metric-card ${results.interpretations?.irr?.status || ''}`}>
                   <h4>IRR</h4>
-                  <div className="metric-value">{formatPercentage(results.irr)}</div>
+                  <div className="metric-value">{formatPercentage(results.irr || 0)}</div>
                   <div className="metric-label">Annual Rate of Return</div>
-                  <div className="interpretation">{results.interpretations.irr.interpretation}</div>
+                  <div className="interpretation">{results.interpretations?.irr?.interpretation || 'Calculating...'}</div>
                 </div>
 
-                <div className={`metric-card ${results.interpretations.dscr.status}`}>
+                <div className={`metric-card ${results.interpretations?.dscr?.status || ''}`}>
                   <h4>DSCR</h4>
-                  <div className="metric-value">{results.dscr.toFixed(2)}x</div>
+                  <div className="metric-value">{results.dscr?.toFixed(2) || 'N/A'}x</div>
                   <div className="metric-label">Debt Service Coverage</div>
-                  <div className="interpretation">{results.interpretations.dscr.interpretation}</div>
+                  <div className="interpretation">{results.interpretations?.dscr?.interpretation || 'Calculating...'}</div>
                 </div>
 
-                <div className={`metric-card ${results.interpretations.roic.status}`}>
+                <div className={`metric-card ${results.interpretations?.roic?.status || ''}`}>
                   <h4>ROIC</h4>
-                  <div className="metric-value">{formatPercentage(results.roic)}</div>
+                  <div className="metric-value">{formatPercentage(results.roic || 0)}</div>
                   <div className="metric-label">Return on Invested Capital</div>
-                  <div className="interpretation">{results.interpretations.roic.interpretation}</div>
+                  <div className="interpretation">{results.interpretations?.roic?.interpretation || 'Calculating...'}</div>
                 </div>
               </div>
 
