@@ -3,28 +3,20 @@ import { Hero } from './components/Hero/Hero';
 import { EducationalSections } from './components/EducationalSections/EducationalSections';
 import { OffplanCalculator } from './components/OffplanCalculator/OffplanCalculator';
 import { CurrencySelector } from './components/CurrencySelector/CurrencySelector';
-import { useCalculator } from './hooks/useCalculator';
+import { useReadyPropertyCalculator } from './hooks/useReadyPropertyCalculator';
 import { formatCurrency, formatPercentage } from './utils/formatters';
 import { currencies, getCurrencySymbol } from './utils/currencies';
 import './App.css';
 
 function App() {
-  const { inputs, setInputs, results, calculate } = useCalculator();
+  const { inputs, setInputs, results, calculate } = useReadyPropertyCalculator();
   const [isDetailedBreakdownExpanded, setIsDetailedBreakdownExpanded] = useState(true);
   const [activeCalculator, setActiveCalculator] = useState('ready');
 
-  // Auto-calculate on mount after calculator is loaded
+  // Auto-calculate on mount
   useEffect(() => {
-    const initCalculator = () => {
-      if (window.RealEstateCalculator) {
-        calculate();
-      } else {
-        // Wait for calculator to load
-        setTimeout(initCalculator, 100);
-      }
-    };
-    initCalculator();
-  }, []);
+    calculate();
+  }, [calculate]);
 
   const handleInputChange = (field, value) => {
     const newInputs = {

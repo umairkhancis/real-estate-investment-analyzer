@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useOffplanCalculator } from '../../hooks/useOffplanCalculator';
+// MIGRATED: Using refactored hook with SOLID principles
+import { useOffplanCalculatorRefactored as useOffplanCalculator } from '../../hooks/useOffplanCalculatorRefactored';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import { currencies, getCurrencySymbol } from '../../utils/currencies';
 import { CurrencySelector } from '../CurrencySelector/CurrencySelector';
@@ -12,7 +13,7 @@ export function OffplanCalculator() {
 
   useEffect(() => {
     calculate();
-  }, []);
+  }, [calculate]);
 
   const handleInputChange = (field, value) => {
     const newInputs = {
@@ -108,7 +109,7 @@ export function OffplanCalculator() {
             />
           </div>
 
-          {results.totalConstructionPercent && (
+          {results?.totalConstructionPercent && (
             <div className="input-group">
               <label>Total Construction Payment (Calculated)</label>
               <input
@@ -160,7 +161,7 @@ export function OffplanCalculator() {
         </div>
 
         {/* Construction Phase Investment Metrics */}
-        {results.dcf && (
+        {results?.dcf && (
           <>
             <div className="collapsible-header" onClick={() => setIsInvestmentExpanded(!isInvestmentExpanded)}>
               <h3>📊 Construction Phase Investment Analysis</h3>
