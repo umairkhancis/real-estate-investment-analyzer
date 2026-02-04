@@ -15,6 +15,7 @@ import {
   calculateOffplanInvestment,
   calculateMortgageContinuation
 } from '../lib/offplanCalculatorRefactored.js';
+import Decimal from '../lib/decimalConfig.js';
 
 /**
  * Calculator Service Class
@@ -99,40 +100,51 @@ class RealEstateCalculatorService {
 
   /**
    * Generate investment recommendation
+   * Handles Decimal values from calculators
    * @private
    * @param {Object} exitScenario - Exit at handover scenario
    * @param {Object} continueScenario - Continue with mortgage scenario
    * @returns {Object} Recommendation
    */
   generateRecommendation(exitScenario, continueScenario) {
-    const roicDifference = (continueScenario.roic * 100) - (exitScenario.roic * 100);
-    const npvDifference = continueScenario.npv - exitScenario.npv;
-    const isPositiveCashFlow = continueScenario.netMonthlyCashFlow >= 0;
-    const dscr = continueScenario.dscr || 0;
+    // Convert Decimal values to Numbers for comparisons
+    const continueRoic = new Decimal(continueScenario.roic);
+    const exitRoic = new Decimal(exitScenario.roic);
+    const continueNpv = new Decimal(continueScenario.npv);
+    const exitNpv = new Decimal(exitScenario.npv);
+    const netMonthlyCashFlow = new Decimal(continueScenario.netMonthlyCashFlow);
+    const dscrDecimal = continueScenario.dscr ? new Decimal(continueScenario.dscr) : new Decimal(0);
+
+    const roicDifference = continueRoic.times(100).minus(exitRoic.times(100)).toNumber();
+    const npvDifference = continueNpv.minus(exitNpv).toNumber();
+    const isPositiveCashFlow = netMonthlyCashFlow.greaterThanOrEqualTo(0);
+
+    // CRITICAL: DSCR threshold with Decimal precision (prevents 1.1999999 vs 1.2 issues)
+    const dscrThreshold = new Decimal('1.2');
 
     let recommendation = 'exit'; // default
     let strength = 'moderate';
     let reasons = [];
 
     // Strong recommendation to continue
-    if (continueScenario.roic > exitScenario.roic * 1.3 &&
+    if (continueRoic.greaterThan(exitRoic.times(1.3)) &&
         isPositiveCashFlow &&
-        dscr >= 1.2) {
+        dscrDecimal.greaterThanOrEqualTo(dscrThreshold)) {
       recommendation = 'continue';
       strength = 'strong';
       reasons = [
-        `Higher returns: ${(continueScenario.roic * 100).toFixed(1)}% vs ${(exitScenario.roic * 100).toFixed(1)}%`,
+        `Higher returns: ${continueRoic.times(100).toFixed(1)}% vs ${exitRoic.times(100).toFixed(1)}%`,
         'Positive cash flow covers all expenses',
-        `Healthy DSCR of ${dscr.toFixed(2)}x`,
+        `Healthy DSCR of ${dscrDecimal.toFixed(2)}x`,
         `Creates ${npvDifference > 0 ? 'more' : ''} value`
       ];
     }
     // Moderate recommendation to continue
-    else if (continueScenario.roic > exitScenario.roic && npvDifference > 0) {
+    else if (continueRoic.greaterThan(exitRoic) && npvDifference > 0) {
       recommendation = 'continue';
       strength = 'moderate';
       reasons = [
-        `Better ROIC: ${(continueScenario.roic * 100).toFixed(1)}% vs ${(exitScenario.roic * 100).toFixed(1)}%`,
+        `Better ROIC: ${continueRoic.times(100).toFixed(1)}% vs ${exitRoic.times(100).toFixed(1)}%`,
         isPositiveCashFlow ? 'Positive monthly cash flow' : 'Negative cash flow requires funding',
         `Longer time commitment: ${continueScenario.timeToExit} years vs ${exitScenario.timeToExit} years`
       ];
@@ -142,7 +154,7 @@ class RealEstateCalculatorService {
       recommendation = 'exit';
       strength = 'strong';
       reasons = [
-        `Better return per year: ${(exitScenario.roic * 100).toFixed(1)}% in ${exitScenario.timeToExit} years`,
+        `Better return per year: ${exitRoic.times(100).toFixed(1)}% in ${exitScenario.timeToExit} years`,
         `Faster capital return: ${exitScenario.timeToExit} years vs ${continueScenario.timeToExit} years`,
         roicDifference < 0 ? `${Math.abs(roicDifference).toFixed(1)}% lower returns don't justify extra time` : ''
       ].filter(Boolean);
@@ -157,7 +169,7 @@ class RealEstateCalculatorService {
         npvDifference,
         timeDifference: continueScenario.timeToExit - exitScenario.timeToExit,
         cashFlowStatus: isPositiveCashFlow ? 'positive' : 'negative',
-        dscr
+        dscr: dscrDecimal.toNumber()
       }
     };
   }

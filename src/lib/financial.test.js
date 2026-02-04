@@ -1,11 +1,14 @@
 /**
- * Unit Tests for Financial Functions
+ * Unit Tests for Financial Functions (Decimal.js Version)
  *
- * Demonstrates testability of pure functions separated from business logic.
- * These tests verify financial calculations match Excel formulas.
+ * Tests now use exact Decimal comparisons instead of floating-point tolerances.
+ * Expected values are calculated with proper precision to match Decimal results.
+ *
+ * Note: All financial functions now return Decimal objects, not Numbers.
  */
 
 import { PMT, NPV_Excel, IRR, PV, FV, calculateDSCR, calculateROIC } from './financial.js';
+import Decimal from './decimalConfig.js';
 
 describe('Financial Functions', () => {
   describe('PMT - Payment Calculation', () => {
@@ -17,7 +20,8 @@ describe('Financial Functions', () => {
 
       const payment = PMT(rate, nper, pv);
 
-      expect(payment).toBeCloseTo(536.82, 2);
+      // Exact value with Decimal precision
+      expect(payment.toFixed(4)).toBe('536.8216');
     });
 
     test('calculates payment with zero interest rate', () => {
@@ -28,7 +32,8 @@ describe('Financial Functions', () => {
 
       const payment = PMT(rate, nper, pv);
 
-      expect(payment).toBeCloseTo(833.33, 2);
+      // Exact value: 100000 / 120 = 833.333...
+      expect(payment.toFixed(4)).toBe('833.3333');
     });
   });
 
@@ -39,8 +44,9 @@ describe('Financial Functions', () => {
 
       const npv = NPV_Excel(rate, cashFlows);
 
-      // Expected: 1000/1.1 + 1000/1.21 + 1000/1.331 + 1000/1.4641
-      expect(npv).toBeCloseTo(3169.87, 2);
+      // Exact calculation with Decimal precision
+      // 1000/1.1 + 1000/1.21 + 1000/1.331 + 1000/1.4641
+      expect(npv.toFixed(4)).toBe('3169.8654');
     });
 
     test('calculates NPV for varying cash flows', () => {
@@ -49,8 +55,8 @@ describe('Financial Functions', () => {
 
       const npv = NPV_Excel(rate, cashFlows);
 
-      // Actual calculation: 500/1.08 + 1000/1.1664 + 1500/1.259712 + 2000/1.36048896
-      expect(npv).toBeCloseTo(3981.11, 2);
+      // Exact calculation with Decimal precision: 500/1.08 + 1000/1.1664 + 1500/1.259712 + 2000/1.36048896
+      expect(npv.toFixed(4)).toBe('3981.1099');
     });
   });
 
@@ -61,7 +67,8 @@ describe('Financial Functions', () => {
 
       const irr = IRR(cashFlows);
 
-      expect(irr).toBeCloseTo(0.1524, 3); // ~15.24%
+      // Exact IRR with Decimal precision (Newton-Raphson convergence)
+      expect(irr.toFixed(6)).toBe('0.152382');
     });
 
     test('calculates IRR for breakeven investment', () => {
@@ -69,7 +76,8 @@ describe('Financial Functions', () => {
 
       const irr = IRR(cashFlows);
 
-      expect(irr).toBeCloseTo(0, 2);
+      // Breakeven IRR should be effectively 0 (handle negative zero)
+      expect(irr.abs().toFixed(6)).toBe('0.000000');
     });
   });
 
@@ -81,8 +89,8 @@ describe('Financial Functions', () => {
 
       const pv = PV(futureValue, rate, periods);
 
-      // 10000 / (1.05^10)
-      expect(pv).toBeCloseTo(6139.13, 2);
+      // Exact: 10000 / (1.05^10)
+      expect(pv.toFixed(4)).toBe('6139.1325');
     });
 
     test('handles zero rate', () => {
@@ -92,7 +100,8 @@ describe('Financial Functions', () => {
 
       const pv = PV(futureValue, rate, periods);
 
-      expect(pv).toBe(10000); // No discounting at 0% rate
+      // At 0% rate, PV = FV (no discounting)
+      expect(pv.equals(new Decimal(10000))).toBe(true);
     });
   });
 
@@ -104,8 +113,8 @@ describe('Financial Functions', () => {
 
       const fv = FV(presentValue, rate, periods);
 
-      // 5000 * (1.06^8)
-      expect(fv).toBeCloseTo(7969.24, 2);
+      // Exact with Decimal precision: 5000 * (1.06^8)
+      expect(fv.toFixed(4)).toBe('7969.2404');
     });
   });
 
@@ -116,7 +125,8 @@ describe('Financial Functions', () => {
 
       const dscr = calculateDSCR(netOperatingIncome, annualDebtService);
 
-      expect(dscr).toBe(1.25);
+      // Exact: 50000 / 40000 = 1.25
+      expect(dscr.equals(new Decimal('1.25'))).toBe(true);
     });
 
     test('returns 0 when debt service is zero', () => {
@@ -125,7 +135,8 @@ describe('Financial Functions', () => {
 
       const dscr = calculateDSCR(netOperatingIncome, annualDebtService);
 
-      expect(dscr).toBe(0);
+      // Should return exactly 0
+      expect(dscr.equals(new Decimal(0))).toBe(true);
     });
 
     test('calculates DSCR less than 1 for insufficient income', () => {
@@ -134,7 +145,8 @@ describe('Financial Functions', () => {
 
       const dscr = calculateDSCR(netOperatingIncome, annualDebtService);
 
-      expect(dscr).toBe(0.75);
+      // Exact: 30000 / 40000 = 0.75
+      expect(dscr.equals(new Decimal('0.75'))).toBe(true);
     });
   });
 
@@ -145,7 +157,8 @@ describe('Financial Functions', () => {
 
       const roic = calculateROIC(totalReturn, investedCapital);
 
-      expect(roic).toBe(0.5); // 50% return
+      // Exact: (150000 / 100000) - 1 = 0.5 (50% return)
+      expect(roic.equals(new Decimal('0.5'))).toBe(true);
     });
 
     test('calculates negative ROIC for losses', () => {
@@ -154,7 +167,8 @@ describe('Financial Functions', () => {
 
       const roic = calculateROIC(totalReturn, investedCapital);
 
-      expect(roic).toBeCloseTo(-0.2, 10); // -20% return (floating point precision)
+      // Exact: (80000 / 100000) - 1 = -0.2 (-20% return)
+      expect(roic.equals(new Decimal('-0.2'))).toBe(true);
     });
 
     test('returns 0 when invested capital is zero', () => {
@@ -163,7 +177,8 @@ describe('Financial Functions', () => {
 
       const roic = calculateROIC(totalReturn, investedCapital);
 
-      expect(roic).toBe(0);
+      // Should return exactly 0 (not undefined or NaN)
+      expect(roic.equals(new Decimal(0))).toBe(true);
     });
 
     test('calculates breakeven scenario', () => {
@@ -172,7 +187,8 @@ describe('Financial Functions', () => {
 
       const roic = calculateROIC(totalReturn, investedCapital);
 
-      expect(roic).toBe(0); // 0% return (breakeven)
+      // Exact: (100000 / 100000) - 1 = 0 (0% return, breakeven)
+      expect(roic.equals(new Decimal(0))).toBe(true);
     });
   });
 });

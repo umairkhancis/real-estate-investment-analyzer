@@ -12,6 +12,31 @@
 
 import { useState, useCallback } from 'react';
 import { calculatorService } from '../services/realEstateCalculatorService.js';
+import Decimal from '../lib/decimalConfig.js';
+
+/**
+ * Convert Decimal objects to Numbers for UI display
+ * Recursively processes objects and arrays
+ */
+function convertDecimalsToNumbers(obj) {
+  if (obj instanceof Decimal) {
+    return obj.toNumber();
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(convertDecimalsToNumbers);
+  }
+
+  if (obj && typeof obj === 'object') {
+    const converted = {};
+    for (const key in obj) {
+      converted[key] = convertDecimalsToNumbers(obj[key]);
+    }
+    return converted;
+  }
+
+  return obj;
+}
 
 /**
  * Custom hook for off-plan investment calculations
@@ -87,10 +112,13 @@ export function useOffplanCalculatorRefactored(initialInputs = {}) {
         mortgageInputs
       );
 
+      // Convert all Decimal objects to Numbers first
+      const resultsAsNumbers = convertDecimalsToNumbers(calculationResults);
+
       // Transform results for UI consumption
       const transformedResults = {
         // Off-plan phase
-        ...calculationResults.offplanPhase,
+        ...resultsAsNumbers.offplanPhase,
 
         // Store input percentages for display
         downPaymentPercentDisplay: newInputs.downPaymentPercent,
@@ -98,28 +126,28 @@ export function useOffplanCalculatorRefactored(initialInputs = {}) {
         discountRateDisplay: newInputs.discountRate,
 
         // Exit at handover scenario
-        profitAtHandover: calculationResults.exitAtHandover.profit,
-        roiAtHandover: calculationResults.exitAtHandover.roic * 100,
+        profitAtHandover: resultsAsNumbers.exitAtHandover.profit,
+        roiAtHandover: resultsAsNumbers.exitAtHandover.roic * 100,
 
         // Continue with mortgage scenario
-        monthlyEMI: calculationResults.continueWithMortgage.monthlyEMI,
-        monthlyRentalIncome: calculationResults.continueWithMortgage.annualRental / 12,
-        monthlyServiceCharges: calculationResults.continueWithMortgage.annualServiceCharges / 12,
-        netMonthlyRentalIncome: calculationResults.continueWithMortgage.netOperatingIncome / 12,
-        netMonthlyCashFlow: calculationResults.continueWithMortgage.netMonthlyCashFlow,
-        dscr: calculationResults.continueWithMortgage.dscr,
-        mortgageNPV: calculationResults.continueWithMortgage.npv,
-        mortgageIRR: calculationResults.continueWithMortgage.irr,
-        mortgageDCF: calculationResults.continueWithMortgage.dcf,
-        mortgageROIC: calculationResults.continueWithMortgage.roic,
-        totalInvestmentWithMortgage: calculationResults.continueWithMortgage.investedCapital,
-        remainingAmount: calculationResults.offplanPhase.totalValue -
-                         calculationResults.offplanPhase.totalPaymentTillHandover,
-        yearsToFullExit: calculationResults.continueWithMortgage.timeToExit,
-        exitValueForMortgage: newInputs.exitValue || calculationResults.offplanPhase.exitValueNominal,
+        monthlyEMI: resultsAsNumbers.continueWithMortgage.monthlyEMI,
+        monthlyRentalIncome: resultsAsNumbers.continueWithMortgage.annualRental / 12,
+        monthlyServiceCharges: resultsAsNumbers.continueWithMortgage.annualServiceCharges / 12,
+        netMonthlyRentalIncome: resultsAsNumbers.continueWithMortgage.netOperatingIncome / 12,
+        netMonthlyCashFlow: resultsAsNumbers.continueWithMortgage.netMonthlyCashFlow,
+        dscr: resultsAsNumbers.continueWithMortgage.dscr,
+        mortgageNPV: resultsAsNumbers.continueWithMortgage.npv,
+        mortgageIRR: resultsAsNumbers.continueWithMortgage.irr,
+        mortgageDCF: resultsAsNumbers.continueWithMortgage.dcf,
+        mortgageROIC: resultsAsNumbers.continueWithMortgage.roic,
+        totalInvestmentWithMortgage: resultsAsNumbers.continueWithMortgage.investedCapital,
+        remainingAmount: resultsAsNumbers.offplanPhase.totalValue -
+                         resultsAsNumbers.offplanPhase.totalPaymentTillHandover,
+        yearsToFullExit: resultsAsNumbers.continueWithMortgage.timeToExit,
+        exitValueForMortgage: newInputs.exitValue || resultsAsNumbers.offplanPhase.exitValueNominal,
 
         // Recommendation
-        recommendation: calculationResults.recommendation,
+        recommendation: resultsAsNumbers.recommendation,
 
         // Currency for formatting
         currency: newInputs.currency

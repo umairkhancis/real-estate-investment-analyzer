@@ -1,49 +1,59 @@
 /**
- * Ready Property Calculator - Business Logic
+ * Ready Property Calculator - Business Logic (Decimal.js Version)
  *
  * Calculates investment metrics for ready properties with mortgage financing.
- * Completely decoupled from UI/DOM - pure business logic only.
+ * All calculations now use Decimal.js for exact precision.
+ *
+ * IMPORTANT: All functions now return Decimal objects for numerical values.
+ * Convert to Number using .toNumber() at display/UI boundaries only.
  *
  * Single Responsibility: Ready property investment calculations
  * Dependencies: Only financial functions (Dependency Inversion Principle)
  */
 
 import { PMT, NPV_Excel, IRR, PV, calculateDSCR, calculateROIC } from './financial.js';
+import Decimal from './decimalConfig.js';
+import { ZERO } from './decimalConfig.js';
 
 /**
- * Calculate rental metrics
+ * Calculate rental metrics with exact precision
  *
  * @param {Object} params
- * @param {number} params.totalValue - Total property value
- * @param {number} params.propertySize - Property size in sq ft
- * @param {number} params.rentalROI - Rental ROI as decimal (e.g., 0.07 = 7%)
- * @param {number} params.serviceChargesPerSqFt - Annual service charges per sq ft
- * @returns {Object} Rental metrics
+ * @param {number|Decimal} params.totalValue - Total property value
+ * @param {number|Decimal} params.propertySize - Property size in sq ft
+ * @param {number|Decimal} params.rentalROI - Rental ROI as decimal (e.g., 0.07 = 7%)
+ * @param {number|Decimal} params.serviceChargesPerSqFt - Annual service charges per sq ft
+ * @returns {Object} Rental metrics (all Decimal values)
  */
 export function calculateRentalMetrics({ totalValue, propertySize, rentalROI, serviceChargesPerSqFt }) {
-  const annualRental = totalValue * rentalROI;
-  const annualServiceCharges = serviceChargesPerSqFt * propertySize;
-  const netOperatingIncome = annualRental - annualServiceCharges;
+  const totalValueDecimal = new Decimal(totalValue);
+  const propertySizeDecimal = new Decimal(propertySize);
+  const rentalROIDecimal = new Decimal(rentalROI);
+  const serviceChargesDecimal = new Decimal(serviceChargesPerSqFt);
+
+  const annualRental = totalValueDecimal.times(rentalROIDecimal);
+  const annualServiceCharges = serviceChargesDecimal.times(propertySizeDecimal);
+  const netOperatingIncome = annualRental.minus(annualServiceCharges);
 
   return {
     annualRental,
     annualServiceCharges,
     netOperatingIncome,
-    monthlyRental: annualRental / 12,
-    monthlyServiceCharges: annualServiceCharges / 12,
-    netMonthlyIncome: netOperatingIncome / 12
+    monthlyRental: annualRental.div(12),
+    monthlyServiceCharges: annualServiceCharges.div(12),
+    netMonthlyIncome: netOperatingIncome.div(12)
   };
 }
 
 /**
- * Calculate investment costs
+ * Calculate investment costs with exact precision
  *
  * @param {Object} params
- * @param {number} params.totalValue - Total property value
- * @param {number} params.downPaymentPercent - Down payment as decimal (e.g., 0.25 = 25%)
- * @param {number} params.registrationFeePercent - Registration fee as decimal (e.g., 0.04 = 4%)
- * @param {number} params.agentCommissionPercent - Agent commission as decimal (default 0.02 = 2%)
- * @returns {Object} Investment costs
+ * @param {number|Decimal} params.totalValue - Total property value
+ * @param {number|Decimal} params.downPaymentPercent - Down payment as decimal (e.g., 0.25 = 25%)
+ * @param {number|Decimal} params.registrationFeePercent - Registration fee as decimal (e.g., 0.04 = 4%)
+ * @param {number|Decimal} params.agentCommissionPercent - Agent commission as decimal (default 0.02 = 2%)
+ * @returns {Object} Investment costs (all Decimal values)
  */
 export function calculateInvestmentCosts({
   totalValue,
@@ -51,11 +61,18 @@ export function calculateInvestmentCosts({
   registrationFeePercent,
   agentCommissionPercent = 0.02
 }) {
-  const downPaymentAmt = totalValue * downPaymentPercent;
-  const registrationFee = totalValue * registrationFeePercent;
-  const agentFee = totalValue * agentCommissionPercent;
-  const investedCapital = downPaymentAmt + registrationFee + agentFee;
-  const financingAmount = totalValue * (1 - downPaymentPercent);
+  const totalValueDecimal = new Decimal(totalValue);
+  const downPaymentPctDecimal = new Decimal(downPaymentPercent);
+  const registrationFeePctDecimal = new Decimal(registrationFeePercent);
+  const agentCommissionPctDecimal = new Decimal(agentCommissionPercent);
+
+  const downPaymentAmt = totalValueDecimal.times(downPaymentPctDecimal);
+  const registrationFee = totalValueDecimal.times(registrationFeePctDecimal);
+  const agentFee = totalValueDecimal.times(agentCommissionPctDecimal);
+  const investedCapital = downPaymentAmt.plus(registrationFee).plus(agentFee);
+  const financingAmount = totalValueDecimal.times(
+    new Decimal(1).minus(downPaymentPctDecimal)
+  );
 
   return {
     downPaymentAmt,
@@ -67,19 +84,29 @@ export function calculateInvestmentCosts({
 }
 
 /**
- * Calculate mortgage metrics
+ * Calculate mortgage metrics with exact precision
  *
  * @param {Object} params
- * @param {number} params.financingAmount - Amount to finance
- * @param {number} params.discountRate - Annual discount rate as decimal
- * @param {number} params.tenure - Loan tenure in years
- * @returns {Object} Mortgage metrics
+ * @param {number|Decimal} params.financingAmount - Amount to finance
+ * @param {number|Decimal} params.discountRate - Annual discount rate as decimal
+ * @param {number|Decimal} params.tenure - Loan tenure in years
+ * @returns {Object} Mortgage metrics (all Decimal values)
  */
 export function calculateMortgageMetrics({ financingAmount, discountRate, tenure }) {
-  const monthlyEMI = PMT(discountRate / 12, tenure * 12, -financingAmount);
-  const annualDebtService = monthlyEMI * 12;
-  const totalMortgagePayment = monthlyEMI * tenure * 12;
-  const totalInterestPaid = totalMortgagePayment - financingAmount;
+  const financingAmountDecimal = new Decimal(financingAmount);
+  const discountRateDecimal = new Decimal(discountRate);
+  const tenureDecimal = new Decimal(tenure);
+
+  // PMT now returns Decimal
+  const monthlyEMI = PMT(
+    discountRateDecimal.div(12),
+    tenureDecimal.times(12),
+    financingAmountDecimal.neg()
+  );
+
+  const annualDebtService = monthlyEMI.times(12);
+  const totalMortgagePayment = monthlyEMI.times(tenureDecimal).times(12);
+  const totalInterestPaid = totalMortgagePayment.minus(financingAmountDecimal);
 
   return {
     monthlyEMI,
@@ -90,16 +117,16 @@ export function calculateMortgageMetrics({ financingAmount, discountRate, tenure
 }
 
 /**
- * Calculate DCF and NPV metrics
+ * Calculate DCF and NPV metrics with exact precision
  *
  * @param {Object} params
- * @param {number} params.netAnnualCashFlow - Net annual cash flow
- * @param {number} params.exitValue - Expected exit value (nominal)
- * @param {number} params.discountRate - Annual discount rate as decimal
- * @param {number} params.investedCapital - Total invested capital
- * @param {number} params.tenure - Investment tenure in years
+ * @param {number|Decimal} params.netAnnualCashFlow - Net annual cash flow
+ * @param {number|Decimal} params.exitValue - Expected exit value (nominal)
+ * @param {number|Decimal} params.discountRate - Annual discount rate as decimal
+ * @param {number|Decimal} params.investedCapital - Total invested capital
+ * @param {number|Decimal} params.tenure - Investment tenure in years
  * @param {number} params.npvYears - Years to use for NPV calculation (default 20)
- * @returns {Object} DCF and NPV metrics
+ * @returns {Object} DCF and NPV metrics (all Decimal values)
  */
 export function calculateDCFMetrics({
   netAnnualCashFlow,
@@ -109,25 +136,36 @@ export function calculateDCFMetrics({
   tenure,
   npvYears = 20
 }) {
-  // Terminal value discounted to present
-  const terminalValuePV = PV(exitValue, discountRate, tenure);
+  const netAnnualCashFlowDecimal = new Decimal(netAnnualCashFlow);
+  const exitValueDecimal = new Decimal(exitValue);
+  const discountRateDecimal = new Decimal(discountRate);
+  const investedCapitalDecimal = new Decimal(investedCapital);
+  const tenureDecimal = new Decimal(tenure);
 
-  // Future cash flows for NPV calculation
-  const futureCashFlows = Array(npvYears).fill(netAnnualCashFlow);
+  // Terminal value discounted to present (PV returns Decimal)
+  const terminalValuePV = PV(exitValueDecimal, discountRateDecimal, tenureDecimal);
 
-  const npvFuture = NPV_Excel(discountRate, futureCashFlows);
-  const dcf = npvFuture + terminalValuePV;
-  const npv = -investedCapital + dcf;
+  // Future cash flows for NPV calculation (convert Decimal to Number for array)
+  const futureCashFlows = Array(npvYears).fill(netAnnualCashFlowDecimal.toNumber());
+
+  // NPV_Excel returns Decimal
+  const npvFuture = NPV_Excel(discountRateDecimal, futureCashFlows);
+  const dcf = npvFuture.plus(terminalValuePV);
+  const npv = investedCapitalDecimal.neg().plus(dcf);
 
   // IRR calculation
-  const cashFlowsIRR = [-investedCapital, ...Array(npvYears).fill(netAnnualCashFlow), terminalValuePV];
-  const irr = IRR(cashFlowsIRR);
+  const cashFlowsIRR = [
+    -investedCapitalDecimal.toNumber(),
+    ...Array(npvYears).fill(netAnnualCashFlowDecimal.toNumber()),
+    terminalValuePV.toNumber()
+  ];
+  const irr = IRR(cashFlowsIRR); // Returns Decimal
 
-  // ROIC
-  const roic = calculateROIC(dcf, investedCapital);
+  // ROIC (returns Decimal)
+  const roic = calculateROIC(dcf, investedCapitalDecimal);
 
   return {
-    terminalValueFV: exitValue,
+    terminalValueFV: exitValueDecimal,
     terminalValuePV,
     dcf,
     npv,
@@ -140,19 +178,28 @@ export function calculateDCFMetrics({
  * Generate cash flow array for visualization
  *
  * @param {Object} params
- * @param {number} params.investedCapital - Initial investment (negative)
- * @param {number} params.netAnnualCashFlow - Annual cash flow
- * @param {number} params.exitValue - Exit value (nominal)
- * @param {number} params.tenure - Investment tenure in years
- * @returns {Array<number>} Cash flow array
+ * @param {number|Decimal} params.investedCapital - Initial investment (negative)
+ * @param {number|Decimal} params.netAnnualCashFlow - Annual cash flow
+ * @param {number|Decimal} params.exitValue - Exit value (nominal)
+ * @param {number|Decimal} params.tenure - Investment tenure in years
+ * @returns {Array<number>} Cash flow array (as Numbers for visualization)
  */
 export function generateCashFlows({ investedCapital, netAnnualCashFlow, exitValue, tenure }) {
-  const cashFlows = [-investedCapital];
-  for (let i = 1; i < tenure; i++) {
-    cashFlows.push(netAnnualCashFlow);
+  const investedCapitalDecimal = new Decimal(investedCapital);
+  const netAnnualCashFlowDecimal = new Decimal(netAnnualCashFlow);
+  const exitValueDecimal = new Decimal(exitValue);
+  const tenureNum = Number(tenure);
+
+  const cashFlows = [-investedCapitalDecimal.toNumber()];
+
+  for (let i = 1; i < tenureNum; i++) {
+    cashFlows.push(netAnnualCashFlowDecimal.toNumber());
   }
+
   // Final year includes both cash flow and exit value
-  cashFlows.push(netAnnualCashFlow + exitValue);
+  const finalYearCashFlow = netAnnualCashFlowDecimal.plus(exitValueDecimal);
+  cashFlows.push(finalYearCashFlow.toNumber());
+
   return cashFlows;
 }
 
@@ -171,14 +218,14 @@ export function generateCashFlows({ investedCapital, netAnnualCashFlow, exitValu
  * @param {number} inputs.serviceChargesPerSqFt - Annual service charges per square foot
  * @param {number} inputs.exitValue - Expected property sale price at exit (nominal/future value)
  *
- * @returns {Object} Complete investment analysis results
+ * @returns {Object} Complete investment analysis results (most values are Decimal objects)
  */
 export function calculateReadyPropertyInvestment(inputs) {
-  // Convert percentages to decimals
-  const downPaymentPct = inputs.downPaymentPercent / 100;
-  const registrationFeePct = inputs.registrationFeePercent / 100;
-  const discountRate = inputs.discountRate / 100;
-  const rentalROI = inputs.rentalROI / 100;
+  // Convert percentages to decimals using Decimal for exact precision
+  const downPaymentPct = new Decimal(inputs.downPaymentPercent).div(100);
+  const registrationFeePct = new Decimal(inputs.registrationFeePercent).div(100);
+  const discountRate = new Decimal(inputs.discountRate).div(100);
+  const rentalROI = new Decimal(inputs.rentalROI).div(100);
 
   const {
     propertySize,
@@ -189,7 +236,9 @@ export function calculateReadyPropertyInvestment(inputs) {
   } = inputs;
 
   // Calculate all metrics using focused functions
-  const pricePerSqFt = totalValue / propertySize;
+  const totalValueDecimal = new Decimal(totalValue);
+  const propertySizeDecimal = new Decimal(propertySize);
+  const pricePerSqFt = totalValueDecimal.div(propertySizeDecimal);
 
   const costs = calculateInvestmentCosts({
     totalValue,
@@ -210,8 +259,8 @@ export function calculateReadyPropertyInvestment(inputs) {
     tenure
   });
 
-  const netAnnualCashFlow = rental.netOperatingIncome - mortgage.annualDebtService;
-  const netMonthlyCashFlow = netAnnualCashFlow / 12;
+  const netAnnualCashFlow = rental.netOperatingIncome.minus(mortgage.annualDebtService);
+  const netMonthlyCashFlow = netAnnualCashFlow.div(12);
 
   const dcfMetrics = calculateDCFMetrics({
     netAnnualCashFlow,
@@ -230,31 +279,31 @@ export function calculateReadyPropertyInvestment(inputs) {
     tenure
   });
 
-  // Return comprehensive results
+  // Return comprehensive results (most values are Decimal objects)
   return {
     // Basic metrics
     pricePerSqFt,
 
-    // Investment costs
+    // Investment costs (all Decimal)
     ...costs,
 
-    // Rental metrics
+    // Rental metrics (all Decimal)
     ...rental,
 
-    // Mortgage metrics
+    // Mortgage metrics (all Decimal)
     ...mortgage,
 
-    // Cash flows
+    // Cash flows (Decimal)
     netAnnualCashFlow,
     netMonthlyCashFlow,
 
-    // DCF metrics
+    // DCF metrics (all Decimal)
     ...dcfMetrics,
 
-    // Performance metrics
+    // Performance metrics (Decimal)
     dscr,
 
-    // Visualization
+    // Visualization (Array of Numbers)
     cashFlows,
 
     // Metadata

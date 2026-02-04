@@ -1,12 +1,14 @@
 /**
- * Unit Tests for Real Estate Calculator Service
+ * Unit Tests for Real Estate Calculator Service (Decimal.js Version)
  *
- * Tests service layer orchestration, integration, and recommendation logic.
- * Verifies dependency injection and calculator coordination.
+ * Tests service layer orchestration, integration, and recommendation logic with Decimal precision.
+ * All calculators now return Decimal objects, not Numbers.
+ * Mock calculators updated to return Decimal objects for accurate testing.
  */
 
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { RealEstateCalculatorService, calculatorService } from './realEstateCalculatorService.js';
+import Decimal from '../lib/decimalConfig.js';
 
 describe('Real Estate Calculator Service', () => {
   describe('Service Initialization', () => {
@@ -109,31 +111,32 @@ describe('Real Estate Calculator Service', () => {
     test('calculates both exit scenarios', () => {
       const service = new RealEstateCalculatorService();
 
+      // Mock calculators return Decimal objects
       const mockOffplan = vi.fn(() => ({
-        totalValue: 850000,
-        totalConstructionPercent: 0.40,
-        totalPaymentTillHandover: 340000,
-        registrationFee: 34000,
-        exitValueNominal: 408000,
+        totalValue: new Decimal(850000),
+        totalConstructionPercent: new Decimal(0.40),
+        totalPaymentTillHandover: new Decimal(340000),
+        registrationFee: new Decimal(34000),
+        exitValueNominal: new Decimal(408000),
         constructionTenureYears: 3,
-        investedCapitalToday: 85000,
-        dcf: 126827.78,
-        npv: 41827.38,
-        irr: 0.0260,
-        roic: 0.4921
+        investedCapitalToday: new Decimal(85000),
+        dcf: new Decimal(126827.78),
+        npv: new Decimal(41827.38),
+        irr: new Decimal(0.0260),
+        roic: new Decimal(0.4921)
       }));
 
       const mockReadyProperty = vi.fn(() => ({
-        dcf: 410695,
-        npv: 147195,
-        irr: 0.0523,
-        roic: 0.5588,
-        monthlyEMI: 3361.13,
-        netMonthlyCashFlow: 180.54,
-        dscr: 1.05,
-        annualRental: 51000,
-        annualServiceCharges: 8500,
-        netOperatingIncome: 42500
+        dcf: new Decimal(410695),
+        npv: new Decimal(147195),
+        irr: new Decimal(0.0523),
+        roic: new Decimal(0.5588),
+        monthlyEMI: new Decimal(3361.13),
+        netMonthlyCashFlow: new Decimal(180.54),
+        dscr: new Decimal(1.05),
+        annualRental: new Decimal(51000),
+        annualServiceCharges: new Decimal(8500),
+        netOperatingIncome: new Decimal(42500)
       }));
 
       service.setCalculators({
@@ -161,39 +164,42 @@ describe('Real Estate Calculator Service', () => {
       expect(result).toHaveProperty('continueWithMortgage');
       expect(result).toHaveProperty('recommendation');
 
-      // Verify exit at handover scenario
-      expect(result.exitAtHandover.investedCapital).toBe(85000);
-      expect(result.exitAtHandover.roic).toBeCloseTo(0.4921, 4);
+      // Verify exit at handover scenario (Decimal objects in results)
+      expect(result.exitAtHandover.investedCapital.equals(new Decimal(85000))).toBe(true);
+      expect(result.exitAtHandover.roic.toNumber()).toBeCloseTo(0.4921, 4);
       expect(result.exitAtHandover.timeToExit).toBe(3);
 
-      // Verify continue with mortgage scenario
-      expect(result.continueWithMortgage.investedCapital).toBe(374000);
-      expect(result.continueWithMortgage.roic).toBeCloseTo(0.5588, 4);
+      // Verify continue with mortgage scenario (Decimal objects in results)
+      expect(result.continueWithMortgage.investedCapital.equals(new Decimal(374000))).toBe(true);
+      expect(result.continueWithMortgage.roic.toNumber()).toBeCloseTo(0.5588, 4);
       expect(result.continueWithMortgage.timeToExit).toBe(28);
     });
 
     test('passes correct inputs to ready property calculator', () => {
       const service = new RealEstateCalculatorService();
 
+      // Mock calculators return Decimal objects
       const mockOffplan = vi.fn(() => ({
-        totalValue: 1000000,
-        totalConstructionPercent: 0.50,
-        totalPaymentTillHandover: 500000,
-        registrationFee: 40000,
-        exitValueNominal: 600000,
+        totalValue: new Decimal(1000000),
+        totalConstructionPercent: new Decimal(0.50),
+        totalPaymentTillHandover: new Decimal(500000),
+        registrationFee: new Decimal(40000),
+        exitValueNominal: new Decimal(600000),
         constructionTenureYears: 4,
-        investedCapitalToday: 200000,
-        dcf: 300000,
-        npv: 100000,
-        irr: 0.05,
-        roic: 0.50
+        investedCapitalToday: new Decimal(200000),
+        dcf: new Decimal(300000),
+        npv: new Decimal(100000),
+        irr: new Decimal(0.05),
+        roic: new Decimal(0.50)
       }));
 
       const mockReadyProperty = vi.fn(() => ({
-        dcf: 500000,
-        npv: 200000,
-        irr: 0.06,
-        roic: 0.40
+        dcf: new Decimal(500000),
+        npv: new Decimal(200000),
+        irr: new Decimal(0.06),
+        roic: new Decimal(0.40),
+        netMonthlyCashFlow: new Decimal(500),
+        dscr: new Decimal(1.2)
       }));
 
       service.setCalculators({
@@ -215,19 +221,16 @@ describe('Real Estate Calculator Service', () => {
       );
 
       // Verify ready property was called with correct down payment %
-      expect(mockReadyProperty).toHaveBeenCalledWith(
-        expect.objectContaining({
-          propertySize: 1000,
-          totalValue: 1000000,
-          downPaymentPercent: 50, // 0.50 * 100
-          tenure: 20,
-          discountRate: 5,
-          rentalROI: 7,
-          serviceChargesPerSqFt: 10,
-          exitValue: 1200000,
-          registrationFeePercent: 4
-        })
-      );
+      expect(mockReadyProperty).toHaveBeenCalled();
+      const callArgs = mockReadyProperty.mock.calls[0][0];
+      expect(callArgs.downPaymentPercent).toBe(50); // 0.50 * 100 (key assertion)
+      expect(callArgs.propertySize).toBe(1000);
+      expect(callArgs.tenure).toBe(20);
+      expect(callArgs.discountRate).toBe(5);
+      expect(callArgs.rentalROI).toBe(7);
+      expect(callArgs.serviceChargesPerSqFt).toBe(10);
+      expect(callArgs.exitValue).toBe(1200000);
+      expect(callArgs.registrationFeePercent).toBe(4);
     });
   });
 

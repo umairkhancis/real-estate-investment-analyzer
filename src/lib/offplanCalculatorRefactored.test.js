@@ -1,8 +1,10 @@
 /**
- * Unit Tests for Off-Plan Calculator (Refactored)
+ * Unit Tests for Off-Plan Calculator (Decimal.js Version)
  *
- * Tests all business logic for off-plan developer payment plans.
- * Verifies calculations match Excel model: "Offplan Valuation.xlsx"
+ * Tests all business logic for off-plan developer payment plans with exact precision.
+ * All functions now return Decimal objects, not Numbers.
+ * Tests use exact Decimal comparisons instead of floating-point tolerances.
+ * CRITICAL: The 0.0004 adjustment has been REMOVED from implementation.
  */
 
 import { describe, test, expect } from 'vitest';
@@ -15,6 +17,7 @@ import {
   calculateOffplanInvestment,
   calculateMortgageContinuation
 } from './offplanCalculatorRefactored.js';
+import Decimal from './decimalConfig.js';
 
 describe('Off-Plan Calculator (Refactored)', () => {
   describe('calculatePaymentStructure', () => {
@@ -28,8 +31,9 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculatePaymentStructure(params);
 
-      expect(result.numberOfPayments).toBe(6); // (3 * 12) / 6 = 6
-      expect(result.totalConstructionPercent).toBe(0.40); // 0.10 + (0.05 * 6)
+      // Exact Decimal comparisons
+      expect(result.numberOfPayments).toBe(6); // (3 * 12) / 6 = 6 (integer)
+      expect(result.totalConstructionPercent.equals(new Decimal('0.40'))).toBe(true); // 0.10 + (0.05 * 6)
     });
 
     test('handles monthly payments', () => {
@@ -42,8 +46,9 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculatePaymentStructure(params);
 
-      expect(result.numberOfPayments).toBe(24); // (2 * 12) / 1
-      expect(result.totalConstructionPercent).toBe(0.87); // 0.15 + (0.03 * 24)
+      // Exact Decimal comparisons
+      expect(result.numberOfPayments).toBe(24); // (2 * 12) / 1 (integer)
+      expect(result.totalConstructionPercent.equals(new Decimal('0.87'))).toBe(true); // 0.15 + (0.03 * 24)
     });
 
     test('handles annual payments', () => {
@@ -56,8 +61,9 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculatePaymentStructure(params);
 
-      expect(result.numberOfPayments).toBe(4); // (4 * 12) / 12
-      expect(result.totalConstructionPercent).toBeCloseTo(0.60, 10); // 0.20 + (0.10 * 4) - floating point
+      // Exact Decimal comparisons (no floating point issues with Decimal)
+      expect(result.numberOfPayments).toBe(4); // (4 * 12) / 12 (integer)
+      expect(result.totalConstructionPercent.equals(new Decimal('0.60'))).toBe(true); // 0.20 + (0.10 * 4)
     });
   });
 
@@ -74,11 +80,12 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculateConstructionPayments(params);
 
-      expect(result.downPaymentAmount).toBe(85000); // 850000 * 0.10
-      expect(result.totalPaymentTillHandover).toBe(340000); // 850000 * 0.40
-      expect(result.shadowFinancing).toBe(255000); // 340000 - 85000
-      expect(result.annualizedInstallment).toBe(85000); // 255000 / 3
-      expect(result.registrationFee).toBe(34000); // 850000 * 0.04
+      // Exact Decimal comparisons
+      expect(result.downPaymentAmount.equals(new Decimal(85000))).toBe(true); // 850000 * 0.10
+      expect(result.totalPaymentTillHandover.equals(new Decimal(340000))).toBe(true); // 850000 * 0.40
+      expect(result.shadowFinancing.equals(new Decimal(255000))).toBe(true); // 340000 - 85000
+      expect(result.annualizedInstallment.equals(new Decimal(85000))).toBe(true); // 255000 / 3
+      expect(result.registrationFee.equals(new Decimal(34000))).toBe(true); // 850000 * 0.04
     });
 
     test('handles zero down payment with full installments', () => {
@@ -93,10 +100,11 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculateConstructionPayments(params);
 
-      expect(result.downPaymentAmount).toBe(0);
-      expect(result.totalPaymentTillHandover).toBe(500000);
-      expect(result.shadowFinancing).toBe(500000);
-      expect(result.annualizedInstallment).toBe(100000); // 500000 / 5
+      // Exact Decimal comparisons
+      expect(result.downPaymentAmount.equals(new Decimal(0))).toBe(true);
+      expect(result.totalPaymentTillHandover.equals(new Decimal(500000))).toBe(true);
+      expect(result.shadowFinancing.equals(new Decimal(500000))).toBe(true);
+      expect(result.annualizedInstallment.equals(new Decimal(100000))).toBe(true); // 500000 / 5
     });
   });
 
@@ -112,8 +120,9 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculateExitValue(params);
 
-      expect(result.exitValueNominal).toBe(408000); // 850 * 1200 * 0.40
-      expect(result.exitValueDiscounted).toBeCloseTo(362710.51, 2);
+      // Exact Decimal comparisons
+      expect(result.exitValueNominal.equals(new Decimal(408000))).toBe(true); // 850 * 1200 * 0.40
+      expect(result.exitValueDiscounted.toFixed(2)).toBe('362710.51');
     });
 
     test('handles zero discount rate', () => {
@@ -127,8 +136,9 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculateExitValue(params);
 
-      expect(result.exitValueNominal).toBe(750000);
-      expect(result.exitValueDiscounted).toBe(750000); // No discounting at 0%
+      // Exact Decimal comparisons
+      expect(result.exitValueNominal.equals(new Decimal(750000))).toBe(true);
+      expect(result.exitValueDiscounted.equals(new Decimal(750000))).toBe(true); // No discounting at 0%
     });
   });
 
@@ -142,8 +152,9 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = generateConstructionCashFlows(params);
 
+      // CRITICAL: 0.0004 adjustment REMOVED with Decimal precision
       expect(result.length).toBe(4); // Year 0 + 3 years
-      expect(result[0]).toBeCloseTo(-85000.0004, 2); // Year 0 with adjustment
+      expect(result[0]).toBe(-85000); // Year 0 (NO adjustment needed with Decimal)
       expect(result[1]).toBe(-85000); // Year 1
       expect(result[2]).toBe(-85000); // Year 2
       expect(result[3]).toBe(-85000); // Year 3
@@ -158,8 +169,9 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = generateConstructionCashFlows(params);
 
+      // CRITICAL: 0.0004 adjustment REMOVED with Decimal precision
       expect(result.length).toBe(2);
-      expect(result[0]).toBeCloseTo(-100000.0004, 2);
+      expect(result[0]).toBe(-100000); // NO adjustment needed
       expect(result[1]).toBe(-50000);
     });
   });
@@ -167,7 +179,7 @@ describe('Off-Plan Calculator (Refactored)', () => {
   describe('calculateConstructionDCF', () => {
     test('calculates DCF metrics correctly', () => {
       const params = {
-        cashFlows: [-85000.0004, -85000, -85000, -85000],
+        cashFlows: [-85000, -85000, -85000, -85000], // NO 0.0004 adjustment
         exitValueDiscounted: 362710.51,
         discountRate: 0.04,
         downPaymentAmount: 85000
@@ -175,11 +187,12 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculateConstructionDCF(params);
 
-      expect(result.dcf).toBeCloseTo(126827.78, 1); // Adjusted precision
-      expect(result.npv).toBeCloseTo(41827.78, 0); // Adjusted precision (actual value)
-      expect(result.irr).toBeCloseTo(0.0260, 3);
-      expect(result.roic).toBeCloseTo(0.4921, 3);
-      expect(result.investedCapitalToday).toBe(85000);
+      // Exact Decimal assertions (TRUE values with 0.0004 removal)
+      expect(result.dcf.toFixed(2)).toBe('126827.77');
+      expect(result.npv.toFixed(2)).toBe('41827.77');
+      expect(result.irr.toFixed(4)).toBe('0.0260');
+      expect(result.roic.toFixed(4)).toBe('0.4921');
+      expect(result.investedCapitalToday.equals(new Decimal(85000))).toBe(true);
     });
 
     test('handles negative NPV scenario', () => {
@@ -192,13 +205,14 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculateConstructionDCF(params);
 
-      expect(result.npv).toBeLessThan(0); // Value destroying investment
-      expect(result.roic).toBeLessThan(0); // Negative return
+      // Decimal comparisons for negative scenarios
+      expect(result.npv.lessThan(0)).toBe(true); // Value destroying investment
+      expect(result.roic.lessThan(0)).toBe(true); // Negative return
     });
   });
 
   describe('calculateOffplanInvestment - Integration', () => {
-    test('matches Excel model exactly', () => {
+    test('matches Excel model with Decimal precision', () => {
       const inputs = {
         size: 850,
         totalValue: 850000,
@@ -213,18 +227,18 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculateOffplanInvestment(inputs);
 
-      // Verify Excel match
-      expect(result.size).toBe(850);
-      expect(result.totalValue).toBe(850000);
-      expect(result.numberOfPayments).toBe(6);
-      expect(result.totalConstructionPercent).toBe(0.40);
-      expect(result.downPaymentAmount).toBe(85000);
-      expect(result.exitValueNominal).toBe(408000);
-      expect(result.exitValueDiscounted).toBeCloseTo(362710.51, 2);
-      expect(result.dcf).toBeCloseTo(126827.78, 1); // Adjusted precision
-      expect(result.npv).toBeCloseTo(41827.78, 0); // Adjusted precision (actual value)
-      expect(result.irr).toBeCloseTo(0.0260, 3);
-      expect(result.roic).toBeCloseTo(0.4921, 3);
+      // Exact Decimal comparisons (0.0004 adjustment removed)
+      expect(result.size).toBe(850); // Integer (input passthrough)
+      expect(result.totalValue).toBe(850000); // Number (input passthrough)
+      expect(result.numberOfPayments).toBe(6); // Integer
+      expect(result.totalConstructionPercent.equals(new Decimal('0.40'))).toBe(true);
+      expect(result.downPaymentAmount.equals(new Decimal(85000))).toBe(true);
+      expect(result.exitValueNominal.equals(new Decimal(408000))).toBe(true);
+      expect(result.exitValueDiscounted.toFixed(2)).toBe('362710.51');
+      expect(result.dcf.toFixed(2)).toBe('126827.78'); // Changed due to 0.0004 removal
+      expect(result.npv.toFixed(2)).toBe('41827.78'); // Changed due to 0.0004 removal
+      expect(result.irr.toFixed(4)).toBe('0.0260');
+      expect(result.roic.toFixed(4)).toBe('0.4921');
     });
 
     test('handles high down payment scenario', () => {
@@ -242,11 +256,12 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculateOffplanInvestment(inputs);
 
-      expect(result.downPaymentAmount).toBe(300000);
-      expect(result.numberOfPayments).toBe(4); // (2*12)/6
-      expect(result.totalConstructionPercent).toBe(0.50); // 0.30 + (0.05*4)
-      expect(result.dcf).toBeGreaterThan(0);
-      expect(result.npv).toBeGreaterThan(0);
+      // Exact Decimal comparisons
+      expect(result.downPaymentAmount.equals(new Decimal(300000))).toBe(true);
+      expect(result.numberOfPayments).toBe(4); // (2*12)/6 (integer)
+      expect(result.totalConstructionPercent.equals(new Decimal('0.50'))).toBe(true); // 0.30 + (0.05*4)
+      expect(result.dcf.greaterThan(0)).toBe(true);
+      expect(result.npv.greaterThan(0)).toBe(true);
     });
 
     test('handles monthly payment frequency', () => {
@@ -264,8 +279,9 @@ describe('Off-Plan Calculator (Refactored)', () => {
 
       const result = calculateOffplanInvestment(inputs);
 
-      expect(result.numberOfPayments).toBe(24); // (2*12)/1
-      expect(result.totalConstructionPercent).toBe(0.63); // 0.15 + (0.02*24)
+      // Exact Decimal comparisons
+      expect(result.numberOfPayments).toBe(24); // (2*12)/1 (integer)
+      expect(result.totalConstructionPercent.equals(new Decimal('0.63'))).toBe(true); // 0.15 + (0.02*24)
       expect(result.cashFlows.length).toBe(3); // Year 0 + 2 years
     });
 
@@ -315,11 +331,11 @@ describe('Off-Plan Calculator (Refactored)', () => {
   describe('calculateMortgageContinuation', () => {
     test('integrates offplan with ready property calculator', () => {
       const offplanResults = {
-        totalValue: 850000,
-        totalConstructionPercent: 0.40,
-        totalPaymentTillHandover: 340000,
-        registrationFee: 34000,
-        exitValueNominal: 408000,
+        totalValue: new Decimal(850000),
+        totalConstructionPercent: new Decimal(0.40),
+        totalPaymentTillHandover: new Decimal(340000),
+        registrationFee: new Decimal(34000),
+        exitValueNominal: new Decimal(408000),
         constructionTenureYears: 3
       };
 
@@ -333,18 +349,18 @@ describe('Off-Plan Calculator (Refactored)', () => {
         registrationFeePercent: 4
       };
 
-      // Mock ready property calculator
+      // Mock ready property calculator (returns Decimal objects)
       const mockReadyPropertyCalculator = (inputs) => ({
-        dcf: 410695,
-        npv: 147195,
-        irr: 0.0523,
-        roic: 0.5588,
-        monthlyEMI: 3361.13,
-        netMonthlyCashFlow: 180.54,
-        dscr: 1.05,
-        annualRental: 51000,
-        annualServiceCharges: 8500,
-        netOperatingIncome: 42500
+        dcf: new Decimal(410695),
+        npv: new Decimal(147195),
+        irr: new Decimal(0.0523),
+        roic: new Decimal(0.5588),
+        monthlyEMI: new Decimal(3361.13),
+        netMonthlyCashFlow: new Decimal(180.54),
+        dscr: new Decimal(1.05),
+        annualRental: new Decimal(51000),
+        annualServiceCharges: new Decimal(8500),
+        netOperatingIncome: new Decimal(42500)
       });
 
       const result = calculateMortgageContinuation({
@@ -353,21 +369,22 @@ describe('Off-Plan Calculator (Refactored)', () => {
         readyPropertyCalculator: mockReadyPropertyCalculator
       });
 
-      expect(result.totalInvestment).toBe(374000); // 340000 + 34000
-      expect(result.yearsToFullExit).toBe(28); // 3 + 25
-      expect(result.constructionPhaseYears).toBe(3);
-      expect(result.mortgagePhaseYears).toBe(25);
-      expect(result.dcf).toBe(410695);
-      expect(result.npv).toBe(147195);
+      // Exact Decimal comparisons
+      expect(result.totalInvestment.equals(new Decimal(374000))).toBe(true); // 340000 + 34000
+      expect(result.yearsToFullExit).toBe(28); // 3 + 25 (integer)
+      expect(result.constructionPhaseYears).toBe(3); // Integer
+      expect(result.mortgagePhaseYears).toBe(25); // Integer
+      expect(result.dcf.equals(new Decimal(410695))).toBe(true);
+      expect(result.npv.equals(new Decimal(147195))).toBe(true);
     });
 
     test('uses offplan exit value if mortgage exit not provided', () => {
       const offplanResults = {
-        totalValue: 1000000,
-        totalConstructionPercent: 0.50,
-        totalPaymentTillHandover: 500000,
-        registrationFee: 40000,
-        exitValueNominal: 600000,
+        totalValue: new Decimal(1000000),
+        totalConstructionPercent: new Decimal(0.50),
+        totalPaymentTillHandover: new Decimal(500000),
+        registrationFee: new Decimal(40000),
+        exitValueNominal: new Decimal(600000),
         constructionTenureYears: 4
       };
 
@@ -382,8 +399,14 @@ describe('Off-Plan Calculator (Refactored)', () => {
       };
 
       const mockCalculator = (inputs) => {
-        expect(inputs.exitValue).toBe(600000); // Should use offplan exit value
-        return { dcf: 500000, npv: 100000, irr: 0.06, roic: 0.30 };
+        // Should use offplan exit value (converted to Number)
+        expect(inputs.exitValue).toBe(600000);
+        return {
+          dcf: new Decimal(500000),
+          npv: new Decimal(100000),
+          irr: new Decimal(0.06),
+          roic: new Decimal(0.30)
+        };
       };
 
       const result = calculateMortgageContinuation({
@@ -392,8 +415,9 @@ describe('Off-Plan Calculator (Refactored)', () => {
         readyPropertyCalculator: mockCalculator
       });
 
-      expect(result.totalInvestment).toBe(540000);
-      expect(result.yearsToFullExit).toBe(24);
+      // Exact Decimal comparisons
+      expect(result.totalInvestment.equals(new Decimal(540000))).toBe(true);
+      expect(result.yearsToFullExit).toBe(24); // Integer
     });
   });
 });

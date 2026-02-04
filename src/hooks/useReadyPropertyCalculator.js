@@ -9,6 +9,7 @@
 
 import { useState, useCallback } from 'react';
 import { calculatorService } from '../services/realEstateCalculatorService.js';
+import Decimal from '../lib/decimalConfig.js';
 
 const defaultInputs = {
   currency: 'AED',
@@ -22,6 +23,30 @@ const defaultInputs = {
   serviceChargesPerSqFt: 10,
   exitValue: 1020000
 };
+
+/**
+ * Convert Decimal objects to Numbers for UI display
+ * Recursively processes objects and arrays
+ */
+function convertDecimalsToNumbers(obj) {
+  if (obj instanceof Decimal) {
+    return obj.toNumber();
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(convertDecimalsToNumbers);
+  }
+
+  if (obj && typeof obj === 'object') {
+    const converted = {};
+    for (const key in obj) {
+      converted[key] = convertDecimalsToNumbers(obj[key]);
+    }
+    return converted;
+  }
+
+  return obj;
+}
 
 /**
  * Interprets calculation results for UI display
@@ -152,8 +177,11 @@ export function useReadyPropertyCalculator(initialInputs = {}) {
         loanAmountAnnualized: interpretedResults.annualDebtService
       };
 
-      setResults(transformedResults);
-      return transformedResults;
+      // Convert all Decimal objects to Numbers for UI display
+      const resultsForUI = convertDecimalsToNumbers(transformedResults);
+
+      setResults(resultsForUI);
+      return resultsForUI;
     } catch (error) {
       console.error('Calculation error:', error);
       setResults(null);

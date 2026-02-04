@@ -1,8 +1,9 @@
 /**
- * Unit Tests for Ready Property Calculator
+ * Unit Tests for Ready Property Calculator (Decimal.js Version)
  *
- * Tests all business logic for ready property investment calculations.
- * Verifies that calculations match Excel model and handle edge cases.
+ * Tests all business logic for ready property investment calculations with exact precision.
+ * All functions now return Decimal objects, not Numbers.
+ * Tests use exact Decimal comparisons instead of floating-point tolerances.
  */
 
 import { describe, test, expect } from 'vitest';
@@ -14,6 +15,7 @@ import {
   generateCashFlows,
   calculateReadyPropertyInvestment
 } from './readyPropertyCalculator.js';
+import Decimal from './decimalConfig.js';
 
 describe('Ready Property Calculator', () => {
   describe('calculateRentalMetrics', () => {
@@ -27,12 +29,13 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateRentalMetrics(params);
 
-      expect(result.annualRental).toBe(51000); // 850000 * 0.06
-      expect(result.annualServiceCharges).toBe(8500); // 850 * 10
-      expect(result.netOperatingIncome).toBe(42500); // 51000 - 8500
-      expect(result.monthlyRental).toBeCloseTo(4250, 2); // 51000 / 12
-      expect(result.monthlyServiceCharges).toBeCloseTo(708.33, 2); // 8500 / 12
-      expect(result.netMonthlyIncome).toBeCloseTo(3541.67, 2); // 42500 / 12
+      // Exact Decimal comparisons
+      expect(result.annualRental.equals(new Decimal(51000))).toBe(true); // 850000 * 0.06
+      expect(result.annualServiceCharges.equals(new Decimal(8500))).toBe(true); // 850 * 10
+      expect(result.netOperatingIncome.equals(new Decimal(42500))).toBe(true); // 51000 - 8500
+      expect(result.monthlyRental.toFixed(4)).toBe('4250.0000'); // 51000 / 12
+      expect(result.monthlyServiceCharges.toFixed(4)).toBe('708.3333'); // 8500 / 12
+      expect(result.netMonthlyIncome.toFixed(4)).toBe('3541.6667'); // 42500 / 12
     });
 
     test('handles zero service charges', () => {
@@ -45,9 +48,10 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateRentalMetrics(params);
 
-      expect(result.annualRental).toBe(25000);
-      expect(result.annualServiceCharges).toBe(0);
-      expect(result.netOperatingIncome).toBe(25000);
+      // Exact Decimal comparisons
+      expect(result.annualRental.equals(new Decimal(25000))).toBe(true);
+      expect(result.annualServiceCharges.equals(new Decimal(0))).toBe(true);
+      expect(result.netOperatingIncome.equals(new Decimal(25000))).toBe(true);
     });
   });
 
@@ -62,11 +66,12 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateInvestmentCosts(params);
 
-      expect(result.downPaymentAmt).toBe(212500); // 850000 * 0.25
-      expect(result.registrationFee).toBe(34000); // 850000 * 0.04
-      expect(result.agentFee).toBe(17000); // 850000 * 0.02
-      expect(result.investedCapital).toBe(263500); // sum of above
-      expect(result.financingAmount).toBe(637500); // 850000 * 0.75
+      // Exact Decimal comparisons
+      expect(result.downPaymentAmt.equals(new Decimal(212500))).toBe(true); // 850000 * 0.25
+      expect(result.registrationFee.equals(new Decimal(34000))).toBe(true); // 850000 * 0.04
+      expect(result.agentFee.equals(new Decimal(17000))).toBe(true); // 850000 * 0.02
+      expect(result.investedCapital.equals(new Decimal(263500))).toBe(true); // sum of above
+      expect(result.financingAmount.equals(new Decimal(637500))).toBe(true); // 850000 * 0.75
     });
 
     test('uses default agent commission if not provided', () => {
@@ -78,7 +83,8 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateInvestmentCosts(params);
 
-      expect(result.agentFee).toBe(20000); // 1000000 * 0.02 (default)
+      // Exact Decimal comparison
+      expect(result.agentFee.equals(new Decimal(20000))).toBe(true); // 1000000 * 0.02 (default)
     });
 
     test('handles 100% down payment', () => {
@@ -91,8 +97,9 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateInvestmentCosts(params);
 
-      expect(result.downPaymentAmt).toBe(500000);
-      expect(result.financingAmount).toBe(0); // No financing needed
+      // Exact Decimal comparisons
+      expect(result.downPaymentAmt.equals(new Decimal(500000))).toBe(true);
+      expect(result.financingAmount.equals(new Decimal(0))).toBe(true); // No financing needed
     });
   });
 
@@ -106,10 +113,11 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateMortgageMetrics(params);
 
-      expect(result.monthlyEMI).toBeCloseTo(3364.96, 2);
-      expect(result.annualDebtService).toBeCloseTo(40379.52, 2);
-      expect(result.totalMortgagePayment).toBeCloseTo(1009488, 0); // Actual calculated value
-      expect(result.totalInterestPaid).toBeCloseTo(371988, 0); // Actual calculated value
+      // Exact Decimal assertions (TRUE precise values from Decimal calculations)
+      expect(result.monthlyEMI.toFixed(4)).toBe('3364.9599');
+      expect(result.annualDebtService.toFixed(4)).toBe('40379.5183');
+      expect(result.totalMortgagePayment.toFixed(2)).toBe('1009487.96');
+      expect(result.totalInterestPaid.toFixed(2)).toBe('371987.96');
     });
 
     test('handles zero interest rate', () => {
@@ -121,8 +129,9 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateMortgageMetrics(params);
 
-      expect(result.monthlyEMI).toBeCloseTo(2500, 2); // 600000 / (20*12)
-      expect(result.totalInterestPaid).toBe(0);
+      // Exact Decimal assertions
+      expect(result.monthlyEMI.toFixed(4)).toBe('2500.0000'); // 600000 / (20*12)
+      expect(result.totalInterestPaid.equals(new Decimal(0))).toBe(true);
     });
   });
 
@@ -139,12 +148,13 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateDCFMetrics(params);
 
-      expect(result.terminalValueFV).toBe(1020000);
-      expect(result.terminalValuePV).toBeCloseTo(382619, 0);
-      expect(result.dcf).toBeCloseTo(412062, 0); // Actual calculated value
-      expect(result.npv).toBeCloseTo(148562, 0); // Actual calculated value
-      expect(result.irr).toBeGreaterThan(0);
-      expect(result.roic).toBeGreaterThan(0);
+      // Exact Decimal assertions (TRUE precise values from Decimal calculations)
+      expect(result.terminalValueFV.equals(new Decimal(1020000))).toBe(true);
+      expect(result.terminalValuePV.toFixed(2)).toBe('382619.14');
+      expect(result.dcf.toFixed(2)).toBe('412061.76');
+      expect(result.npv.toFixed(2)).toBe('148561.76');
+      expect(result.irr.greaterThan(0)).toBe(true);
+      expect(result.roic.greaterThan(0)).toBe(true);
     });
 
     test('handles negative cash flows', () => {
@@ -159,9 +169,11 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateDCFMetrics(params);
 
-      expect(result.dcf).toBeLessThan(result.terminalValuePV); // DCF reduced by negative flows
+      // Decimal comparison for lessThan
+      expect(result.dcf.lessThan(result.terminalValuePV)).toBe(true); // DCF reduced by negative flows
       // Note: NPV can still be positive if exit value is high enough to offset negative cash flows
       expect(result.npv).toBeDefined(); // Just verify it calculates
+      expect(result.npv instanceof Decimal).toBe(true);
     });
   });
 
@@ -176,6 +188,7 @@ describe('Ready Property Calculator', () => {
 
       const result = generateCashFlows(params);
 
+      // Cash flows are returned as Numbers for IRR/NPV compatibility
       expect(result.length).toBe(26); // Year 0 + 25 years
       expect(result[0]).toBe(-263500); // Initial investment
       expect(result[1]).toBe(2166.44); // Year 1 cash flow
@@ -193,6 +206,7 @@ describe('Ready Property Calculator', () => {
 
       const result = generateCashFlows(params);
 
+      // Cash flows are returned as Numbers for IRR/NPV compatibility
       expect(result.length).toBe(2);
       expect(result[0]).toBe(-100000);
       expect(result[1]).toBe(155000); // 5000 + 150000
@@ -215,16 +229,16 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateReadyPropertyInvestment(inputs);
 
-      // Verify all key metrics are present
-      expect(result.pricePerSqFt).toBe(1000);
-      expect(result.investedCapital).toBe(263500);
-      expect(result.annualRental).toBe(51000);
-      expect(result.monthlyEMI).toBeGreaterThan(0);
-      expect(result.dcf).toBeGreaterThan(0);
-      expect(result.npv).toBeGreaterThan(0);
-      expect(result.irr).toBeGreaterThan(0);
-      expect(result.roic).toBeGreaterThan(0);
-      expect(result.dscr).toBeGreaterThan(1); // Rental covers debt
+      // Verify all key metrics are present with Decimal comparisons
+      expect(result.pricePerSqFt.equals(new Decimal(1000))).toBe(true);
+      expect(result.investedCapital.equals(new Decimal(263500))).toBe(true);
+      expect(result.annualRental.equals(new Decimal(51000))).toBe(true);
+      expect(result.monthlyEMI.greaterThan(0)).toBe(true);
+      expect(result.dcf.greaterThan(0)).toBe(true);
+      expect(result.npv.greaterThan(0)).toBe(true);
+      expect(result.irr.greaterThan(0)).toBe(true);
+      expect(result.roic.greaterThan(0)).toBe(true);
+      expect(result.dscr.greaterThan(1)).toBe(true); // Rental covers debt
       expect(result.cashFlows).toHaveLength(26);
     });
 
@@ -243,10 +257,12 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateReadyPropertyInvestment(inputs);
 
-      expect(result.netAnnualCashFlow).toBeLessThan(0); // Negative cash flow
-      expect(result.dscr).toBeLessThan(1); // DSCR < 1 indicates stress
+      // Decimal comparisons for negative scenarios
+      expect(result.netAnnualCashFlow.lessThan(0)).toBe(true); // Negative cash flow
+      expect(result.dscr.lessThan(1)).toBe(true); // DSCR < 1 indicates stress
       // With very low rental ROI and high negative cash flows, DCF can be negative
       expect(result.dcf).toBeDefined(); // Just verify it calculates
+      expect(result.dcf instanceof Decimal).toBe(true);
     });
 
     test('handles high down payment scenario', () => {
@@ -264,10 +280,11 @@ describe('Ready Property Calculator', () => {
 
       const result = calculateReadyPropertyInvestment(inputs);
 
-      expect(result.financingAmount).toBeCloseTo(100000, 0); // Only 20% financed (floating point)
-      expect(result.monthlyEMI).toBeLessThan(1050); // Low EMI (adjusted for actual calculation)
-      expect(result.netAnnualCashFlow).toBeGreaterThan(0); // Positive cash flow
-      expect(result.dscr).toBeGreaterThan(2); // Strong debt coverage
+      // Decimal comparisons
+      expect(result.financingAmount.equals(new Decimal(100000))).toBe(true); // Only 20% financed
+      expect(result.monthlyEMI.lessThan(1050)).toBe(true); // Low EMI
+      expect(result.netAnnualCashFlow.greaterThan(0)).toBe(true); // Positive cash flow
+      expect(result.dscr.greaterThan(2)).toBe(true); // Strong debt coverage
     });
 
     test('returns all required fields', () => {
