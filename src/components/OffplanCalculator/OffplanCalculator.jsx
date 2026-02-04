@@ -376,43 +376,6 @@ export function OffplanCalculator() {
                     <strong>{formatCurrency(results.remainingAmount, inputs.currency)}</strong>
                   </div>
 
-                  {/* Annual Operating Metrics */}
-                  <div className="decision-metric full-width" style={{ marginTop: '15px', paddingTop: '15px', borderTop: '2px solid #e2e8f0' }}>
-                    <span style={{ fontWeight: '600', color: '#2563eb' }}>📊 Annual Operating Metrics</span>
-                  </div>
-                  <div className="decision-metric">
-                    <span>Rental Amount (Annual)</span>
-                    <strong className="positive">{formatCurrency((results.monthlyRentalIncome || 0) * 12, inputs.currency)}</strong>
-                  </div>
-                  <div className="decision-metric">
-                    <span>EMI (Monthly)</span>
-                    <strong>{formatCurrency(results.monthlyEMI, inputs.currency)}</strong>
-                  </div>
-                  <div className="decision-metric">
-                    <span>Loan Amount (Annual)</span>
-                    <strong>{formatCurrency((results.monthlyEMI || 0) * 12, inputs.currency)}</strong>
-                  </div>
-                  <div className="decision-metric">
-                    <span>Service Charges (Annual)</span>
-                    <strong className="negative">{formatCurrency((results.monthlyServiceCharges || 0) * 12, inputs.currency)}</strong>
-                  </div>
-                  <div className="decision-metric">
-                    <span>Net Operating Profit (Annual)</span>
-                    <strong className={results.netMonthlyRentalIncome >= 0 ? 'positive' : 'negative'}>
-                      {formatCurrency((results.netMonthlyRentalIncome || 0) * 12, inputs.currency)}
-                    </strong>
-                  </div>
-                  <div className="decision-metric">
-                    <span>Net Cash Flow (Annual)</span>
-                    <strong className={results.netMonthlyCashFlow >= 0 ? 'positive' : 'negative'}>
-                      {formatCurrency((results.netMonthlyCashFlow || 0) * 12, inputs.currency)}
-                    </strong>
-                  </div>
-                  <div className="decision-metric">
-                    <span>DSCR (Debt Coverage Ratio)</span>
-                    <strong className={results.dscr >= 1 ? 'positive' : 'negative'}>{results.dscr?.toFixed(2)}x</strong>
-                  </div>
-
                   {/* Investment Returns */}
                   <div className="decision-metric full-width" style={{ marginTop: '15px', paddingTop: '15px', borderTop: '2px solid #e2e8f0' }}>
                     <span style={{ fontWeight: '600', color: '#2563eb' }}>💰 Investment Returns</span>
@@ -449,117 +412,213 @@ export function OffplanCalculator() {
                     <span>Investment Period</span>
                     <strong>{results.yearsToFullExit} years</strong>
                   </div>
+
+                  {/* Annual Operating Metrics */}
+                  <div className="decision-metric full-width" style={{ marginTop: '15px', paddingTop: '15px', borderTop: '2px solid #e2e8f0' }}>
+                    <span style={{ fontWeight: '600', color: '#2563eb' }}>📊 Annual Operating Metrics</span>
+                  </div>
+                  <div className="decision-metric">
+                    <span>Rental Amount (Annual)</span>
+                    <strong className="positive">{formatCurrency((results.monthlyRentalIncome || 0) * 12, inputs.currency)}</strong>
+                  </div>
+                  <div className="decision-metric">
+                    <span>EMI (Monthly)</span>
+                    <strong>{formatCurrency(results.monthlyEMI, inputs.currency)}</strong>
+                  </div>
+                  <div className="decision-metric">
+                    <span>Loan Amount (Annual)</span>
+                    <strong>{formatCurrency((results.monthlyEMI || 0) * 12, inputs.currency)}</strong>
+                  </div>
+                  <div className="decision-metric">
+                    <span>Service Charges (Annual)</span>
+                    <strong className="negative">{formatCurrency((results.monthlyServiceCharges || 0) * 12, inputs.currency)}</strong>
+                  </div>
+                  <div className="decision-metric">
+                    <span>Net Operating Profit (Annual)</span>
+                    <strong className={results.netMonthlyRentalIncome >= 0 ? 'positive' : 'negative'}>
+                      {formatCurrency((results.netMonthlyRentalIncome || 0) * 12, inputs.currency)}
+                    </strong>
+                  </div>
+                  <div className="decision-metric">
+                    <span>Net Cash Flow (Annual)</span>
+                    <strong className={results.netMonthlyCashFlow >= 0 ? 'positive' : 'negative'}>
+                      {formatCurrency((results.netMonthlyCashFlow || 0) * 12, inputs.currency)}
+                    </strong>
+                  </div>
+                  <div className="decision-metric">
+                    <span>DSCR (Debt Coverage Ratio)</span>
+                    <strong className={results.dscr >= 1 ? 'positive' : 'negative'}>{results.dscr?.toFixed(2)}x</strong>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Recommendation */}
+            {/* Strategic Analysis */}
             <div className="recommendation-banner">
-              <h4>💡 Investment Decision Analysis</h4>
+              <h4>💡 Strategic Investment Analysis</h4>
+              <p style={{
+                color: '#000000',
+                backgroundColor: '#f3f4f6',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                lineHeight: '1.6',
+                fontWeight: '600',
+                fontSize: '15px',
+                border: '1px solid #e5e7eb'
+              }}>
+                Both strategies are financially viable. Your choice depends on your investment goals, liquidity needs, and risk tolerance.
+              </p>
 
-              <div className="comparison-stats">
-                <div className="stat-item">
-                  <span>📈 Return on Investment</span>
-                  <strong style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
-                    <span>Exit at Handover: <span style={{ color: '#059669' }}>{results.roiAtHandover?.toFixed(1)}%</span></span>
-                    <span>Continue with Mortgage: <span style={{ color: '#2563eb' }}>{(results.mortgageROIC * 100)?.toFixed(1)}%</span></span>
-                  </strong>
+              {/* Scenario Comparison Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+
+                {/* Exit at Handover Strategy */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                  border: '2px solid #059669',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <h5 style={{ color: '#059669', fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                    🎯 Exit at Handover
+                  </h5>
+                  <div style={{ marginBottom: '15px' }}>
+                    <div style={{ fontSize: '28px', fontWeight: '700', color: '#059669' }}>
+                      {results.roiAtHandover?.toFixed(1)}% ROIC
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                      Over {results.constructionTenureYears} years
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '12px', padding: '10px', background: 'white', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Intrinsic Value of Investment (NPV)</div>
+                    <div style={{ fontSize: '18px', fontWeight: '600', color: '#059669' }}>
+                      {formatCurrency(results.npv, inputs.currency)}
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#059669', marginBottom: '8px', marginTop: '16px' }}>
+                    ✨ Liquidity Strategy
+                  </div>
+                  <ul style={{ fontSize: '13px', lineHeight: '1.7', margin: '0 0 auto 0', paddingLeft: '20px', color: '#374151' }}>
+                    <li><strong>Capital Flexibility:</strong> Realize profits in {results.constructionTenureYears} years and redeploy into new opportunities</li>
+                    <li><strong>Shorter Commitment:</strong> Quick turnaround reduces market exposure and risk</li>
+                    <li><strong>Portfolio Velocity:</strong> Faster capital recycling allows for multiple investments over time</li>
+                    <li><strong>Opportunity Optionality:</strong> Freedom to pursue higher-yielding investments that may emerge</li>
+                  </ul>
+
+                  <div style={{
+                    marginTop: '16px',
+                    padding: '12px',
+                    background: 'white',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    lineHeight: '1.6',
+                    color: '#047857'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>Best for:</div>
+                    <div style={{ fontStyle: 'italic' }}>
+                      Investors seeking liquidity, capital recycling, or who anticipate better opportunities
+                    </div>
+                  </div>
                 </div>
-                <div className="stat-item">
-                  <span>💵 Net Present Value</span>
-                  <strong style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
-                    <span>Exit: <span style={{ color: results.npv >= 0 ? '#059669' : '#dc2626' }}>{formatCurrency(results.npv, inputs.currency)}</span></span>
-                    <span>Continue: <span style={{ color: results.mortgageNPV >= 0 ? '#059669' : '#dc2626' }}>{formatCurrency(results.mortgageNPV, inputs.currency)}</span></span>
-                  </strong>
-                </div>
-                <div className="stat-item">
-                  <span>⏱️ Time Commitment</span>
-                  <strong style={{ display: 'flex', justifyContent: 'space-between', gap: '20px' }}>
-                    <span>Exit: {results.constructionTenureYears} years</span>
-                    <span>Continue: {results.yearsToFullExit} years</span>
-                  </strong>
-                </div>
-                <div className="stat-item">
-                  <span>💰 Cash Flow Status</span>
-                  <strong style={{ color: results.netMonthlyCashFlow >= 0 ? '#059669' : '#dc2626' }}>
-                    {results.netMonthlyCashFlow >= 0 ? '✅ Positive' : '⚠️ Negative'} ({formatCurrency((results.netMonthlyCashFlow || 0) * 12, inputs.currency)}/year)
-                  </strong>
+
+                {/* Continue with Mortgage Strategy */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                  border: '2px solid #2563eb',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <h5 style={{ color: '#2563eb', fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                    🏠 Continue with Mortgage
+                  </h5>
+                  <div style={{ marginBottom: '15px' }}>
+                    <div style={{ fontSize: '28px', fontWeight: '700', color: '#2563eb' }}>
+                      {(results.mortgageROIC * 100)?.toFixed(1)}% ROIC
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                      Over {results.yearsToFullExit} years
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '12px', padding: '10px', background: 'white', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Intrinsic Value of Investment (NPV)</div>
+                    <div style={{ fontSize: '18px', fontWeight: '600', color: '#2563eb' }}>
+                      {formatCurrency(results.mortgageNPV, inputs.currency)}
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#2563eb', marginBottom: '8px', marginTop: '16px' }}>
+                    🏗️ Wealth-Building Strategy
+                  </div>
+                  <ul style={{ fontSize: '13px', lineHeight: '1.7', margin: '0 0 auto 0', paddingLeft: '20px', color: '#374151' }}>
+                    <li><strong>Asset Ownership:</strong> Build equity through mortgage paydown while property appreciates</li>
+                    <li><strong>Steady Cash Flow:</strong> {results.netMonthlyCashFlow >= 0 ?
+                      `Earn ${formatCurrency((results.netMonthlyCashFlow || 0) * 12, inputs.currency)}/year in net rental income` :
+                      `Requires ${formatCurrency(Math.abs(results.netMonthlyCashFlow) * 12, inputs.currency)}/year to cover expenses`}
+                    </li>
+                    <li><strong>Long-term Returns:</strong> {(results.mortgageROIC * 100) > results.roiAtHandover ?
+                      `Higher total ROIC of ${(results.mortgageROIC * 100).toFixed(1)}%` :
+                      `Accumulate ${(results.mortgageROIC * 100).toFixed(1)}% returns`} over full holding period</li>
+                    <li><strong>Debt Coverage:</strong> DSCR of {(results.dscr || 0).toFixed(2)}x {(results.dscr || 0) >= 1.2 ?
+                      'shows strong loan servicing ability' :
+                      (results.dscr || 0) >= 1 ? 'covers debt obligations' : 'requires additional cash flow support'}
+                    </li>
+                  </ul>
+
+                  <div style={{
+                    marginTop: '16px',
+                    padding: '12px',
+                    background: 'white',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    lineHeight: '1.6',
+                    color: '#1d4ed8'
+                  }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>Opportunity Cost:</div>
+                    <div style={{ fontStyle: 'italic' }}>
+                      Capital tied up for {results.yearsToFullExit} years in exchange for property ownership and steady income
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="recommendation-text">
-                {(() => {
-                  const roicDifference = (results.mortgageROIC * 100) - results.roiAtHandover;
-                  const npvDifference = results.mortgageNPV - results.npv;
-                  const isPositiveCashFlow = results.netMonthlyCashFlow >= 0;
-                  const dscr = results.dscr || 0;
+              {/* Key Decision Factors */}
+              <div style={{
+                background: '#f9fafb',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                padding: '16px',
+                marginTop: '20px'
+              }}>
+                <div style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '12px' }}>
+                  🎯 Key Decision Factors:
+                </div>
+                <ul style={{ fontSize: '13px', lineHeight: '1.8', color: '#374151', margin: '0', paddingLeft: '20px' }}>
+                  {(() => {
+                    const roicDiff = ((results.mortgageROIC * 100) - results.roiAtHandover).toFixed(1);
+                    const npvDiff = (results.mortgageNPV - results.npv);
 
-                  if ((results.mortgageROIC * 100) > results.roiAtHandover * 1.3 && isPositiveCashFlow && dscr >= 1.2) {
                     return (
-                      <div>
-                        <p style={{ fontSize: '16px', fontWeight: '600', color: '#059669', marginBottom: '10px' }}>
-                          ✅ Strong Recommendation: Continue with Mortgage
-                        </p>
-                        <p style={{ lineHeight: '1.6' }}>
-                          The numbers strongly favor holding this property long-term. Here's why:
-                        </p>
-                        <ul style={{ lineHeight: '1.6', marginTop: '10px' }}>
-                          <li><strong>Higher Returns:</strong> You'll earn {(results.mortgageROIC * 100)?.toFixed(1)}% ROIC by continuing vs {results.roiAtHandover?.toFixed(1)}% by exiting - that's {roicDifference.toFixed(1)}% more!</li>
-                          <li><strong>Positive Cash Flow:</strong> Your rental income covers all expenses with {formatCurrency((results.netMonthlyCashFlow || 0) * 12, inputs.currency)} surplus annually.</li>
-                          <li><strong>Healthy DSCR:</strong> Your debt coverage ratio of {dscr.toFixed(2)}x shows strong ability to service the loan.</li>
-                          <li><strong>Value Creation:</strong> NPV of {formatCurrency(results.mortgageNPV, inputs.currency)} indicates this investment creates significant value.</li>
-                        </ul>
-                        <p style={{ lineHeight: '1.6', marginTop: '10px', fontStyle: 'italic', color: '#6b7280' }}>
-                          This is a wealth-building opportunity where the property pays for itself while appreciating in value.
-                        </p>
-                      </div>
+                      <>
+                        <li>
+                          <strong>Return Difference:</strong> Holding generates {Math.abs(roicDiff)}% {roicDiff >= 0 ? 'more' : 'less'} ROIC over {results.yearsToFullExit - results.constructionTenureYears} additional years
+                        </li>
+                        <li>
+                          <strong>Value Gap:</strong> {formatCurrency(Math.abs(npvDiff), inputs.currency)} {npvDiff >= 0 ? 'higher' : 'lower'} intrinsic value by holding long-term
+                        </li>
+                        <li>
+                          <strong>Liquidity Trade-off:</strong> Exit provides capital flexibility in {results.constructionTenureYears} years vs. {results.yearsToFullExit} years locked-in period
+                        </li>
+                      </>
                     );
-                  } else if ((results.mortgageROIC * 100) > results.roiAtHandover && npvDifference > 0) {
-                    return (
-                      <div>
-                        <p style={{ fontSize: '16px', fontWeight: '600', color: '#2563eb', marginBottom: '10px' }}>
-                          ⚖️ Moderate Recommendation: Continue with Mortgage
-                        </p>
-                        <p style={{ lineHeight: '1.6' }}>
-                          Continuing with the mortgage offers better returns, but requires careful consideration:
-                        </p>
-                        <ul style={{ lineHeight: '1.6', marginTop: '10px' }}>
-                          <li><strong>Better Returns:</strong> ROIC of {(results.mortgageROIC * 100)?.toFixed(1)}% vs {results.roiAtHandover?.toFixed(1)}% - a difference of {roicDifference.toFixed(1)}%.</li>
-                          <li><strong>Cash Flow:</strong> {isPositiveCashFlow ?
-                            `Positive monthly cash flow of ${formatCurrency(results.netMonthlyCashFlow, inputs.currency)} helps cover expenses.` :
-                            `Negative monthly cash flow of ${formatCurrency(Math.abs(results.netMonthlyCashFlow), inputs.currency)} requires additional funding.`
-                          }</li>
-                          <li><strong>Time Commitment:</strong> You'll need to hold for {inputs.mortgageTenure} years vs quick exit at {results.constructionTenureYears} years.</li>
-                          <li><strong>Risk Assessment:</strong> {dscr >= 1 ? `Healthy DSCR of ${dscr.toFixed(2)}x provides a good safety buffer.` : `Lower DSCR of ${dscr.toFixed(2)}x means tighter margins on loan payments.`}</li>
-                        </ul>
-                        <p style={{ lineHeight: '1.6', marginTop: '10px', fontStyle: 'italic', color: '#6b7280' }}>
-                          Consider your liquidity needs, risk tolerance, and market outlook before deciding. If you can afford the holding period, the returns justify continuing.
-                        </p>
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div>
-                        <p style={{ fontSize: '16px', fontWeight: '600', color: '#ea580c', marginBottom: '10px' }}>
-                          💰 Recommendation: Exit at Handover
-                        </p>
-                        <p style={{ lineHeight: '1.6' }}>
-                          The analysis suggests exiting at handover is the better financial decision:
-                        </p>
-                        <ul style={{ lineHeight: '1.6', marginTop: '10px' }}>
-                          <li><strong>Better Return Per Year:</strong> ROIC of {results.roiAtHandover?.toFixed(1)}% over {results.constructionTenureYears} years vs {(results.mortgageROIC * 100)?.toFixed(1)}% over {results.yearsToFullExit} years.</li>
-                          <li><strong>Faster Capital Return:</strong> Get your money back in {results.constructionTenureYears} years instead of waiting {results.yearsToFullExit} years.</li>
-                          <li><strong>Opportunity Cost:</strong> The {roicDifference < 0 ? Math.abs(roicDifference).toFixed(1) : roicDifference.toFixed(1)}% difference in returns doesn't justify tying up capital for an additional {inputs.mortgageTenure} years.</li>
-                          {!isPositiveCashFlow && <li><strong>Cash Flow Challenge:</strong> Negative monthly cash flow of {formatCurrency(Math.abs(results.netMonthlyCashFlow), inputs.currency)} means you'll need to fund the shortfall monthly.</li>}
-                          {dscr < 1 && <li><strong>DSCR Warning:</strong> Ratio of {dscr.toFixed(2)}x indicates rental income doesn't fully cover loan payments.</li>}
-                        </ul>
-                        <p style={{ lineHeight: '1.6', marginTop: '10px', fontStyle: 'italic', color: '#6b7280' }}>
-                          Exit at handover, take your profit of {formatCurrency(results.profitAtHandover, inputs.currency)}, and redeploy the capital into better opportunities.
-                        </p>
-                      </div>
-                    );
-                  }
-                })()}
+                  })()}
+                </ul>
               </div>
             </div>
           </>
