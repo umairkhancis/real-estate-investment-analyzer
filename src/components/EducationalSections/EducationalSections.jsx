@@ -56,30 +56,59 @@ export function EducationalSections() {
         <h2>🏠 Applying This to Real Estate</h2>
         <p>When you buy a property as an investment, you're actually buying a stream of future cash flows:</p>
 
+        <h3 style={{ marginTop: '30px', marginBottom: '15px', color: '#2563eb' }}>📋 Off-Plan Property Example:</h3>
         <div className="cash-flow-explanation">
           <div className="cash-flow-item-explain">
             <div className="year">Year 0 (Today)</div>
-            <div className="amount negative">-$500,000</div>
+            <div className="amount negative">-$100,000</div>
+            <div className="description">Initial down payment (10-20% of property value)</div>
+          </div>
+
+          <div className="cash-flow-item-explain">
+            <div className="year">Year 1-3</div>
+            <div className="amount negative">-$1,000/month</div>
+            <div className="description">Developer payment plan during construction</div>
+          </div>
+
+          <div className="cash-flow-item-explain">
+            <div className="year">Year 3</div>
+            <div className="amount positive">+$200,000</div>
+            <div className="description">Sale proceeds at handover (exit value)</div>
+          </div>
+        </div>
+
+        <div className="key-question">
+          <h3>The Key Question:</h3>
+          <p style={{ fontSize: '1.2em', lineHeight: 1.8 }}>
+            Is paying <strong>$100,000 down</strong> plus <strong>$1,000/month for 3 years</strong> worth getting <strong>$200,000 back</strong> at handover?
+          </p>
+        </div>
+
+        <h3 style={{ marginTop: '40px', marginBottom: '15px', color: '#059669' }}>🏡 Ready Property with Mortgage Example:</h3>
+        <div className="cash-flow-explanation">
+          <div className="cash-flow-item-explain">
+            <div className="year">Year 0 (Today)</div>
+            <div className="amount negative">-$200,000</div>
             <div className="description">Your initial investment (down payment, fees, etc.)</div>
           </div>
 
           <div className="cash-flow-item-explain">
             <div className="year">Year 1-25</div>
-            <div className="amount positive">+$2,000/month</div>
+            <div className="amount positive">+$4,000/month</div>
             <div className="description">Rental income (minus mortgage, fees, maintenance)</div>
           </div>
 
           <div className="cash-flow-item-explain">
             <div className="year">Year 25</div>
-            <div className="amount positive">+$800,000</div>
+            <div className="amount positive">+$15,000,000</div>
             <div className="description">Property sale value</div>
           </div>
         </div>
 
         <div className="key-question">
-          <h3>The Million Dollar Question:</h3>
+          <h3>The Key Question:</h3>
           <p style={{ fontSize: '1.2em', lineHeight: 1.8 }}>
-            Is spending <strong>$500,000 today</strong> worth getting <strong>$2,000/month for 25 years</strong> plus <strong>$800,000 at the end</strong>?
+            Is spending <strong>$200,000 today</strong> worth getting <strong>$4,000/month for 25 years</strong> plus <strong>$15,000,000 at the end</strong>?
           </p>
         </div>
 

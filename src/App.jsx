@@ -45,7 +45,7 @@ function App() {
             className={`toggle-btn ${activeCalculator === 'offplan' ? 'active' : ''}`}
             onClick={() => setActiveCalculator('offplan')}
           >
-            🏗️ Off-Plan Developer
+            🏗️ Off-Plan Property (Developer Plan)
           </button>
         </div>
       </div>

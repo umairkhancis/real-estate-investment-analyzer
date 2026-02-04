@@ -24,10 +24,33 @@ export function OffplanCalculator() {
     calculate(newInputs);
   };
 
+  // Calculate interpretations for metric cards
+  const npvStatus = results?.npv > 0 ? 'positive' : 'negative';
+  const npvInterpretation = results?.npv > 0 ? 'Creates value' : 'Destroys value';
+
+  const irrPercent = (results?.irr || 0) * 100;
+  const discountPercent = inputs.discountRate * 100;
+  const irrStatus = (results?.irr || 0) > inputs.discountRate ? 'positive' : 'negative';
+  const irrInterpretation = irrPercent > discountPercent + 5
+    ? `Strong return (${irrPercent.toFixed(1)}% vs ${discountPercent}% hurdle)`
+    : irrPercent > discountPercent
+    ? `Acceptable return (${irrPercent.toFixed(1)}% vs ${discountPercent}% hurdle)`
+    : `Below hurdle rate (${irrPercent.toFixed(1)}% vs ${discountPercent}%)`;
+
+  const roicPercent = (results?.roic || 0) * 100;
+  const roicStatus = (results?.roic || 0) > 0.3 ? 'positive' : (results?.roic || 0) > 0.15 ? 'neutral' : 'negative';
+  const roicInterpretation = roicPercent > 50
+    ? `Excellent return (${roicPercent.toFixed(1)}%)`
+    : roicPercent > 30
+    ? `Good return (${roicPercent.toFixed(1)}%)`
+    : roicPercent > 15
+    ? `Fair return (${roicPercent.toFixed(1)}%)`
+    : `Poor return (${roicPercent.toFixed(1)}%)`;
+
   return (
     <div className="offplan-calculator">
       <div className="calculator-card">
-        <h2>🏗️ Off-Plan Developer Payment Plan Calculator</h2>
+        <h2>🏗️ Off-Plan Property (Developer Plan) Calculator</h2>
         <p className="calculator-description">
           Analyze developer payment plans with flexible installments during construction
         </p>
@@ -163,76 +186,72 @@ export function OffplanCalculator() {
         {/* Construction Phase Investment Metrics */}
         {results?.dcf && (
           <>
-            <div className="collapsible-header" onClick={() => setIsInvestmentExpanded(!isInvestmentExpanded)}>
-              <h3>📊 Construction Phase Investment Analysis</h3>
-              <button className="toggle-button">
-                {isInvestmentExpanded ? '▼' : '▶'}
-              </button>
+            <h3 className="section-title">📊 Construction Phase Investment Analysis</h3>
+            <div className="metrics-grid">
+              <div className={`metric-card ${npvStatus}`}>
+                <h4>DCF</h4>
+                <div className="metric-value">{formatCurrency(results.dcf, inputs.currency)}</div>
+                <div className="metric-label">Intrinsic Value</div>
+                <div className="interpretation">{npvInterpretation}</div>
+              </div>
+
+              <div className={`metric-card ${npvStatus}`}>
+                <h4>NPV</h4>
+                <div className="metric-value">{formatCurrency(results.npv, inputs.currency)}</div>
+                <div className="metric-label">Net Present Value</div>
+                <div className="interpretation">{npvInterpretation}</div>
+              </div>
+
+              <div className={`metric-card ${irrStatus}`}>
+                <h4>IRR</h4>
+                <div className="metric-value">{(results.irr * 100).toFixed(2)}%</div>
+                <div className="metric-label">Internal Rate of Return</div>
+                <div className="interpretation">{irrInterpretation}</div>
+              </div>
+
+              <div className={`metric-card ${roicStatus}`}>
+                <h4>ROIC</h4>
+                <div className="metric-value">{(results.roic * 100).toFixed(2)}%</div>
+                <div className="metric-label">Return on Invested Capital</div>
+                <div className="interpretation">{roicInterpretation}</div>
+              </div>
             </div>
 
-            {isInvestmentExpanded && (
-              <div className="metrics-section">
-                <div className="metrics-grid">
-                  <div className="metric-card">
-                    <div className="metric-label">DCF (Discounted Cash Flow)</div>
-                    <div className="metric-value">{formatCurrency(results.dcf, inputs.currency)}</div>
-                    <div className="metric-hint">Present value of investment</div>
-                  </div>
-
-                  <div className="metric-card">
-                    <div className="metric-label">NPV (Net Present Value)</div>
-                    <div className="metric-value">{formatCurrency(results.npv, inputs.currency)}</div>
-                    <div className="metric-hint">Net gain in today's value</div>
-                  </div>
-
-                  <div className="metric-card">
-                    <div className="metric-label">IRR (Internal Rate of Return)</div>
-                    <div className="metric-value">{(results.irr * 100).toFixed(2)}%</div>
-                    <div className="metric-hint">Annual return rate</div>
-                  </div>
-
-                  <div className="metric-card">
-                    <div className="metric-label">ROIC (Return on Invested Capital)</div>
-                    <div className="metric-value">{(results.roic * 100).toFixed(2)}%</div>
-                    <div className="metric-hint">Total return percentage</div>
-                  </div>
-
-                  <div className="metric-card">
-                    <div className="metric-label">Total Construction Payments</div>
-                    <div className="metric-value">{formatCurrency(results.totalPaymentTillHandover, inputs.currency)}</div>
-                    <div className="metric-hint">{(results.totalConstructionPercent * 100).toFixed(1)}% of property value</div>
-                  </div>
-
-                  <div className="metric-card">
-                    <div className="metric-label">Exit Value at Handover</div>
-                    <div className="metric-value">{formatCurrency(results.exitValueNominal, inputs.currency)}</div>
-                    <div className="metric-hint">Property value when ready</div>
-                  </div>
-                </div>
-
-                <div className="payment-breakdown">
-                  <h4>Payment Structure</h4>
-                  <div className="breakdown-grid">
-                    <div className="breakdown-item">
-                      <span>Down Payment ({inputs.downPaymentPercent}%)</span>
-                      <span>{formatCurrency(results.downPaymentAmount, inputs.currency)}</span>
-                    </div>
-                    <div className="breakdown-item">
-                      <span>Number of Installments</span>
-                      <span>{results.numberOfPayments} payments</span>
-                    </div>
-                    <div className="breakdown-item">
-                      <span>Installment Amount</span>
-                      <span>{formatCurrency(results.annualizedInstallment, inputs.currency)}/year</span>
-                    </div>
-                    <div className="breakdown-item highlight">
-                      <span>Total Paid During Construction</span>
-                      <span>{formatCurrency(results.totalPaymentTillHandover, inputs.currency)}</span>
-                    </div>
-                  </div>
-                </div>
+            <div className="additional-metrics">
+              <div
+                className="collapsible-header"
+                onClick={() => setIsInvestmentExpanded(!isInvestmentExpanded)}
+              >
+                <h3>💰 Payment Structure</h3>
+                <button className="toggle-button">
+                  {isInvestmentExpanded ? '▼' : '▶'}
+                </button>
               </div>
-            )}
+              {isInvestmentExpanded && (
+                <div className="detailed-grid">
+                  <div className="detail-card">
+                    <h4>Down Payment ({inputs.downPaymentPercent}%)</h4>
+                    <div className="detail-value">{formatCurrency(results.downPaymentAmount, inputs.currency)}</div>
+                  </div>
+                  <div className="detail-card">
+                    <h4>Number of Installments</h4>
+                    <div className="detail-value">{results.numberOfPayments} payments</div>
+                  </div>
+                  <div className="detail-card">
+                    <h4>Installment Amount</h4>
+                    <div className="detail-value">{formatCurrency(results.annualizedInstallment, inputs.currency)}/year</div>
+                  </div>
+                  <div className="detail-card highlight" style={{ margin: 0 }}>
+                    <h4 style={{ fontSize: 'inherit', fontWeight: 'normal' }}>Total Paid During Construction ({(results.totalConstructionPercent * 100).toFixed(1)}% of property value)</h4>
+                    <div className="detail-value">{formatCurrency(results.totalPaymentTillHandover, inputs.currency)}</div>
+                  </div>
+                  <div className="detail-card">
+                    <h4>Exit Value</h4>
+                    <div className="detail-value">{formatCurrency(results.exitValueNominal, inputs.currency)}</div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Handover Decision Analysis */}
             <h3 className="section-title">🎯 Handover Decision: Exit or Continue?</h3>
@@ -470,7 +489,7 @@ export function OffplanCalculator() {
                 Both strategies are financially viable. Your choice depends on your investment goals, liquidity needs, and risk tolerance.
               </p>
 
-              {/* Scenario Comparison Cards */}
+              {/* Scenario Comparison Cards - Optimized for Head-to-Head Comparison */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
 
                 {/* Exit at Handover Strategy */}
@@ -482,36 +501,43 @@ export function OffplanCalculator() {
                   display: 'flex',
                   flexDirection: 'column'
                 }}>
-                  <h5 style={{ color: '#059669', fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                  {/* Header - Fixed Height for Alignment */}
+                  <h5 style={{ color: '#059669', fontSize: '16px', fontWeight: '600', marginBottom: '12px', minHeight: '24px' }}>
                     🎯 Exit at Handover
                   </h5>
-                  <div style={{ marginBottom: '15px' }}>
-                    <div style={{ fontSize: '28px', fontWeight: '700', color: '#059669' }}>
+
+                  {/* ROIC Display - Fixed Height for Alignment */}
+                  <div style={{ marginBottom: '15px', minHeight: '62px' }}>
+                    <div style={{ fontSize: '28px', fontWeight: '700', color: '#059669', lineHeight: '1.2' }}>
                       {results.roiAtHandover?.toFixed(1)}% ROIC
                     </div>
-                    <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                    <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
                       Over {results.constructionTenureYears} years
                     </div>
                   </div>
-                  <div style={{ marginBottom: '12px', padding: '10px', background: 'white', borderRadius: '8px' }}>
+
+                  {/* NPV Box - Fixed Height for Alignment */}
+                  <div style={{ marginBottom: '16px', padding: '10px', background: 'white', borderRadius: '8px', minHeight: '66px' }}>
                     <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Intrinsic Value of Investment (NPV)</div>
                     <div style={{ fontSize: '18px', fontWeight: '600', color: '#059669' }}>
                       {formatCurrency(results.npv, inputs.currency)}
                     </div>
                   </div>
 
-                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#059669', marginBottom: '8px', marginTop: '16px' }}>
+                  {/* Strategy Section - Fixed Height for Alignment */}
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#059669', marginBottom: '8px', minHeight: '23px' }}>
                     ✨ Liquidity Strategy
                   </div>
-                  <ul style={{ fontSize: '13px', lineHeight: '1.7', margin: '0 0 auto 0', paddingLeft: '20px', color: '#374151' }}>
+                  <ul style={{ fontSize: '13px', lineHeight: '1.7', margin: '0 0 16px 0', paddingLeft: '20px', color: '#374151', minHeight: '165px' }}>
                     <li><strong>Capital Flexibility:</strong> Realize profits in {results.constructionTenureYears} years and redeploy into new opportunities</li>
                     <li><strong>Shorter Commitment:</strong> Quick turnaround reduces market exposure and risk</li>
                     <li><strong>Portfolio Velocity:</strong> Faster capital recycling allows for multiple investments over time</li>
                     <li><strong>Opportunity Optionality:</strong> Freedom to pursue higher-yielding investments that may emerge</li>
                   </ul>
 
+                  {/* Bottom Section - Aligned Horizontally */}
                   <div style={{
-                    marginTop: '16px',
+                    marginTop: 'auto',
                     padding: '12px',
                     background: 'white',
                     borderRadius: '8px',
@@ -535,28 +561,34 @@ export function OffplanCalculator() {
                   display: 'flex',
                   flexDirection: 'column'
                 }}>
-                  <h5 style={{ color: '#2563eb', fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                  {/* Header - Fixed Height for Alignment */}
+                  <h5 style={{ color: '#2563eb', fontSize: '16px', fontWeight: '600', marginBottom: '12px', minHeight: '24px' }}>
                     🏠 Continue with Mortgage
                   </h5>
-                  <div style={{ marginBottom: '15px' }}>
-                    <div style={{ fontSize: '28px', fontWeight: '700', color: '#2563eb' }}>
+
+                  {/* ROIC Display - Fixed Height for Alignment */}
+                  <div style={{ marginBottom: '15px', minHeight: '62px' }}>
+                    <div style={{ fontSize: '28px', fontWeight: '700', color: '#2563eb', lineHeight: '1.2' }}>
                       {(results.mortgageROIC * 100)?.toFixed(1)}% ROIC
                     </div>
-                    <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                    <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
                       Over {results.yearsToFullExit} years
                     </div>
                   </div>
-                  <div style={{ marginBottom: '12px', padding: '10px', background: 'white', borderRadius: '8px' }}>
+
+                  {/* NPV Box - Fixed Height for Alignment */}
+                  <div style={{ marginBottom: '16px', padding: '10px', background: 'white', borderRadius: '8px', minHeight: '66px' }}>
                     <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '4px' }}>Intrinsic Value of Investment (NPV)</div>
                     <div style={{ fontSize: '18px', fontWeight: '600', color: '#2563eb' }}>
                       {formatCurrency(results.mortgageNPV, inputs.currency)}
                     </div>
                   </div>
 
-                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#2563eb', marginBottom: '8px', marginTop: '16px' }}>
+                  {/* Strategy Section - Fixed Height for Alignment */}
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#2563eb', marginBottom: '8px', minHeight: '23px' }}>
                     🏗️ Wealth-Building Strategy
                   </div>
-                  <ul style={{ fontSize: '13px', lineHeight: '1.7', margin: '0 0 auto 0', paddingLeft: '20px', color: '#374151' }}>
+                  <ul style={{ fontSize: '13px', lineHeight: '1.7', margin: '0 0 16px 0', paddingLeft: '20px', color: '#374151', minHeight: '165px' }}>
                     <li><strong>Asset Ownership:</strong> Build equity through mortgage paydown while property appreciates</li>
                     <li><strong>Steady Cash Flow:</strong> {results.netMonthlyCashFlow >= 0 ?
                       `Earn ${formatCurrency((results.netMonthlyCashFlow || 0) * 12, inputs.currency)}/year in net rental income` :
@@ -571,8 +603,9 @@ export function OffplanCalculator() {
                     </li>
                   </ul>
 
+                  {/* Bottom Section - Aligned Horizontally */}
                   <div style={{
-                    marginTop: '16px',
+                    marginTop: 'auto',
                     padding: '12px',
                     background: 'white',
                     borderRadius: '8px',
