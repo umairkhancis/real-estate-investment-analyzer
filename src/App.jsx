@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Hero } from './components/Hero/Hero';
 import { EducationalSections } from './components/EducationalSections/EducationalSections';
+import { OffplanCalculator } from './components/OffplanCalculator/OffplanCalculator';
 import { CurrencySelector } from './components/CurrencySelector/CurrencySelector';
 import { useCalculator } from './hooks/useCalculator';
 import { formatCurrency, formatPercentage } from './utils/formatters';
@@ -10,6 +11,7 @@ import './App.css';
 function App() {
   const { inputs, setInputs, results, calculate } = useCalculator();
   const [isDetailedBreakdownExpanded, setIsDetailedBreakdownExpanded] = useState(true);
+  const [activeCalculator, setActiveCalculator] = useState('ready');
 
   // Auto-calculate on mount after calculator is loaded
   useEffect(() => {
@@ -38,7 +40,26 @@ function App() {
       <Hero />
       <EducationalSections />
 
-      <section className="calculator-section" id="calculator">
+      {/* Calculator Toggle */}
+      <div className="calculator-toggle-wrapper" id="calculator">
+        <div className="calculator-toggle-buttons">
+          <button
+            className={`toggle-btn ${activeCalculator === 'ready' ? 'active' : ''}`}
+            onClick={() => setActiveCalculator('ready')}
+          >
+            🏠 Ready Property (Mortgage)
+          </button>
+          <button
+            className={`toggle-btn ${activeCalculator === 'offplan' ? 'active' : ''}`}
+            onClick={() => setActiveCalculator('offplan')}
+          >
+            🏗️ Off-Plan Developer
+          </button>
+        </div>
+      </div>
+
+      {activeCalculator === 'ready' ? (
+        <section className="calculator-section">
         <div className="container">
           <h2>💰 Investment Calculator</h2>
 
@@ -275,6 +296,9 @@ function App() {
           )}
         </div>
       </section>
+      ) : (
+        <OffplanCalculator />
+      )}
 
       <footer className="footer">
         <p>Real Estate Investment Analyzer - Built with React + Vite + Firebase</p>
