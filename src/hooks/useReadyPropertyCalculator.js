@@ -68,18 +68,21 @@ function interpretResults(rawResults, inputs) {
 
   // IRR Interpretation (compare to discount rate)
   const irrPercent = irr * 100;
-  const discountPercent = (discountRate || inputs.discountRate) * 100;
+  // discountRate from results is in decimal form (0.04 for 4%)
+  // inputs.discountRate is in percentage form (4 for 4%)
+  const discountPercent = discountRate ? discountRate * 100 : inputs.discountRate;
+  const discountRateDecimal = discountPercent / 100;
   const irrInterpretation = {
-    status: irr > (discountRate || inputs.discountRate)
+    status: irr > discountRateDecimal
       ? 'positive'
-      : irr < (discountRate || inputs.discountRate)
+      : irr < discountRateDecimal
       ? 'negative'
       : 'neutral',
     interpretation: irrPercent > discountPercent + 5
-      ? `Strong return (${irrPercent.toFixed(1)}% vs ${discountPercent}% hurdle)`
+      ? `Strong return (${irrPercent.toFixed(1)}% vs ${discountPercent.toFixed(1)}% hurdle)`
       : irrPercent > discountPercent
-      ? `Acceptable return (${irrPercent.toFixed(1)}% vs ${discountPercent}% hurdle)`
-      : `Below hurdle rate (${irrPercent.toFixed(1)}% vs ${discountPercent}%)`
+      ? `Acceptable return (${irrPercent.toFixed(1)}% vs ${discountPercent.toFixed(1)}% hurdle)`
+      : `Below hurdle rate (${irrPercent.toFixed(1)}% vs ${discountPercent.toFixed(1)}%)`
   };
 
   // DSCR Interpretation

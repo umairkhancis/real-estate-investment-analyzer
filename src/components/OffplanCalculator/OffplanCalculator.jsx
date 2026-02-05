@@ -30,13 +30,15 @@ export function OffplanCalculator() {
   const npvInterpretation = results?.npv > 0 ? 'Creates value' : 'Destroys value';
 
   const irrPercent = (results?.irr || 0) * 100;
-  const discountPercent = inputs.discountRate * 100;
-  const irrStatus = (results?.irr || 0) > inputs.discountRate ? 'positive' : 'negative';
+  // inputs.discountRate is already in percentage form (4 for 4%)
+  const discountPercent = inputs.discountRate;
+  const discountRateDecimal = discountPercent / 100;
+  const irrStatus = (results?.irr || 0) > discountRateDecimal ? 'positive' : 'negative';
   const irrInterpretation = irrPercent > discountPercent + 5
-    ? `Strong return (${irrPercent.toFixed(1)}% vs ${discountPercent}% hurdle)`
+    ? `Strong return (${irrPercent.toFixed(1)}% vs ${discountPercent.toFixed(1)}% hurdle)`
     : irrPercent > discountPercent
-    ? `Acceptable return (${irrPercent.toFixed(1)}% vs ${discountPercent}% hurdle)`
-    : `Below hurdle rate (${irrPercent.toFixed(1)}% vs ${discountPercent}%)`;
+    ? `Acceptable return (${irrPercent.toFixed(1)}% vs ${discountPercent.toFixed(1)}% hurdle)`
+    : `Below hurdle rate (${irrPercent.toFixed(1)}% vs ${discountPercent.toFixed(1)}%)`;
 
   const roicPercent = (results?.roic || 0) * 100;
   const roicStatus = (results?.roic || 0) > 0.3 ? 'positive' : (results?.roic || 0) > 0.15 ? 'neutral' : 'negative';
