@@ -176,7 +176,7 @@ function App() {
                   <div className="metric-value">{formatCurrency(results.dcf || 0, inputs.currency)}</div>
                   <div className="metric-label">Intrinsic Value</div>
                   <div className="interpretation">
-                    {results.npv > 0 ? 'Creates value' : 'Destroys value'}
+                    Property's true worth in today's terms
                   </div>
                 </div>
 

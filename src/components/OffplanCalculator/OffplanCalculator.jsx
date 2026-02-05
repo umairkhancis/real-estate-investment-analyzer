@@ -193,7 +193,7 @@ export function OffplanCalculator() {
                 <h4><AcronymTooltip acronym="DCF" fullText="Discounted Cash Flow: What your investment is worth in today's dollars after accounting for time value of money" /></h4>
                 <div className="metric-value">{formatCurrency(results.dcf, inputs.currency)}</div>
                 <div className="metric-label">Intrinsic Value</div>
-                <div className="interpretation">{npvInterpretation}</div>
+                <div className="interpretation">Property's true worth in today's terms</div>
               </div>
 
               <div className={`metric-card ${npvStatus}`}>
