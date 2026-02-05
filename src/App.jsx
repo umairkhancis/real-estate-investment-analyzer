@@ -3,6 +3,7 @@ import { Hero } from './components/Hero/Hero';
 import { EducationalSections } from './components/EducationalSections/EducationalSections';
 import { OffplanCalculator } from './components/OffplanCalculator/OffplanCalculator';
 import { CurrencySelector } from './components/CurrencySelector/CurrencySelector';
+import { AcronymTooltip } from './components/AcronymTooltip/AcronymTooltip';
 import { useReadyPropertyCalculator } from './hooks/useReadyPropertyCalculator';
 import { formatCurrency, formatPercentage } from './utils/formatters';
 import { currencies, getCurrencySymbol } from './utils/currencies';
@@ -171,7 +172,7 @@ function App() {
               <h3>📊 Key Metrics</h3>
               <div className="metrics-grid">
                 <div className={`metric-card ${results.interpretations?.npv?.status || ''}`}>
-                  <h4>DCF</h4>
+                  <h4><AcronymTooltip acronym="DCF" fullText="Discounted Cash Flow: What your investment is worth in today's dollars after accounting for time value of money" /></h4>
                   <div className="metric-value">{formatCurrency(results.dcf || 0, inputs.currency)}</div>
                   <div className="metric-label">Intrinsic Value</div>
                   <div className="interpretation">
@@ -180,21 +181,21 @@ function App() {
                 </div>
 
                 <div className={`metric-card ${results.interpretations?.irr?.status || ''}`}>
-                  <h4>IRR</h4>
+                  <h4><AcronymTooltip acronym="IRR" fullText="Internal Rate of Return: The annual percentage return you'll earn on your investment. Compare this to your discount rate." /></h4>
                   <div className="metric-value">{formatPercentage(results.irr || 0)}</div>
                   <div className="metric-label">Annual Rate of Return</div>
                   <div className="interpretation">{results.interpretations?.irr?.interpretation || 'Calculating...'}</div>
                 </div>
 
                 <div className={`metric-card ${results.interpretations?.dscr?.status || ''}`}>
-                  <h4>DSCR</h4>
+                  <h4><AcronymTooltip acronym="DSCR" fullText="Debt Service Coverage Ratio: Measures if rental income covers your mortgage payments. Above 1.25 is healthy." /></h4>
                   <div className="metric-value">{results.dscr?.toFixed(2) || 'N/A'}x</div>
                   <div className="metric-label">Debt Service Coverage</div>
                   <div className="interpretation">{results.interpretations?.dscr?.interpretation || 'Calculating...'}</div>
                 </div>
 
                 <div className={`metric-card ${results.interpretations?.roic?.status || ''}`}>
-                  <h4>ROIC</h4>
+                  <h4><AcronymTooltip acronym="ROIC" fullText="Return on Invested Capital: Total return percentage on the money you actually put in. Higher is better." /></h4>
                   <div className="metric-value">{formatPercentage(results.roic || 0)}</div>
                   <div className="metric-label">Return on Invested Capital</div>
                   <div className="interpretation">{results.interpretations?.roic?.interpretation || 'Calculating...'}</div>
@@ -293,9 +294,9 @@ function App() {
       )}
 
       <footer className="footer">
-        <p>Real Estate Investment Analyzer - Built with React + Vite + Firebase</p>
+        <p>© {new Date().getFullYear()} Umair Khan. All rights reserved.</p>
         <p style={{ opacity: 0.7, fontSize: '0.9em' }}>
-          🔥 Analytics & Data Storage Enabled
+          Real Estate Investment Analyzer
         </p>
       </footer>
     </div>

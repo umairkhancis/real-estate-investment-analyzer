@@ -4,7 +4,7 @@ export function EducationalSections() {
   return (
     <>
       {/* The Problem */}
-      <section className="content-section">
+      <section className="content-section" id="problem">
         <h2>Here's The Problem...</h2>
         <p>You're excited about a property. The developer shows you beautiful brochures. They promise:</p>
         <ul style={{ fontSize: '1.15em', lineHeight: 2, color: '#555', margin: '20px 0 20px 40px' }}>
@@ -16,6 +16,10 @@ export function EducationalSections() {
         <p><strong>Money today is not the same as money tomorrow.</strong></p>
         <p>That property they're selling you for $500,000 today, promising it'll be worth $1,000,000 in 20 years? That future million dollars is NOT worth a million in today's terms.</p>
         <p>Before you can make a smart investment decision, you need to understand one fundamental concept...</p>
+
+        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+          <a href="#start-learning" className="cta-button">Understand the Concept</a>
+        </div>
       </section>
 
       {/* Understanding Time Value of Money */}
@@ -46,9 +50,11 @@ export function EducationalSections() {
 
         <p style={{ marginTop: '30px' }}>This simple principle is called the <strong>Time Value of Money</strong>, and it's the foundation of every smart investment decision.</p>
 
-        <p style={{ fontSize: '1.2em', fontWeight: 600, color: '#667eea', marginTop: '40px' }}>
-          So how do we use this to evaluate a property investment?
-        </p>
+        <div style={{ textAlign: 'center', marginTop: '40px' }}>
+          <a href="#real-estate-context" className="cta-button">
+            So how do we use this to evaluate a property investment?
+          </a>
+        </div>
       </section>
 
       {/* Real Estate Context */}
@@ -162,14 +168,17 @@ export function EducationalSections() {
         </div>
 
         <a href="#other-metrics" className="cta-button" style={{ background: 'white', color: '#667eea' }}>
-          What About IRR, NPV & ROIC?
+          Show Me the Financial KPIs
         </a>
       </section>
 
       {/* Other Metrics */}
       <section className="content-section" id="other-metrics">
-        <h2>📊 Other Important Metrics</h2>
-        <p>DCF gives you the intrinsic value, but smart investors look at several metrics:</p>
+        <h2>📊 Financial KPIs for Investment Decisions</h2>
+        <p style={{ fontSize: '1.1em', marginBottom: '30px' }}>
+          Professional investors don't rely on gut feelings—they track these critical financial KPIs to make data-driven decisions.
+          Here are the metrics that separate successful investors from those who lose money:
+        </p>
 
         <div className="metrics-explanation">
           <div className="metric-explain">

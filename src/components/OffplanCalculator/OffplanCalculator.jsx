@@ -4,6 +4,7 @@ import { useOffplanCalculatorRefactored as useOffplanCalculator } from '../../ho
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import { currencies, getCurrencySymbol } from '../../utils/currencies';
 import { CurrencySelector } from '../CurrencySelector/CurrencySelector';
+import { AcronymTooltip } from '../AcronymTooltip/AcronymTooltip';
 import './OffplanCalculator.css';
 
 export function OffplanCalculator() {
@@ -189,28 +190,28 @@ export function OffplanCalculator() {
             <h3 className="section-title">📊 Construction Phase Investment Analysis</h3>
             <div className="metrics-grid">
               <div className={`metric-card ${npvStatus}`}>
-                <h4>DCF</h4>
+                <h4><AcronymTooltip acronym="DCF" fullText="Discounted Cash Flow: What your investment is worth in today's dollars after accounting for time value of money" /></h4>
                 <div className="metric-value">{formatCurrency(results.dcf, inputs.currency)}</div>
                 <div className="metric-label">Intrinsic Value</div>
                 <div className="interpretation">{npvInterpretation}</div>
               </div>
 
               <div className={`metric-card ${npvStatus}`}>
-                <h4>NPV</h4>
+                <h4><AcronymTooltip acronym="NPV" fullText="Net Present Value: Profit or loss in today's dollars. Positive means good investment, negative means avoid." /></h4>
                 <div className="metric-value">{formatCurrency(results.npv, inputs.currency)}</div>
                 <div className="metric-label">Net Present Value</div>
                 <div className="interpretation">{npvInterpretation}</div>
               </div>
 
               <div className={`metric-card ${irrStatus}`}>
-                <h4>IRR</h4>
+                <h4><AcronymTooltip acronym="IRR" fullText="Internal Rate of Return: The annual percentage return you'll earn on your investment. Compare this to your discount rate." /></h4>
                 <div className="metric-value">{(results.irr * 100).toFixed(2)}%</div>
                 <div className="metric-label">Internal Rate of Return</div>
                 <div className="interpretation">{irrInterpretation}</div>
               </div>
 
               <div className={`metric-card ${roicStatus}`}>
-                <h4>ROIC</h4>
+                <h4><AcronymTooltip acronym="ROIC" fullText="Return on Invested Capital: Total return percentage on the money you actually put in. Higher is better." /></h4>
                 <div className="metric-value">{(results.roic * 100).toFixed(2)}%</div>
                 <div className="metric-label">Return on Invested Capital</div>
                 <div className="interpretation">{roicInterpretation}</div>

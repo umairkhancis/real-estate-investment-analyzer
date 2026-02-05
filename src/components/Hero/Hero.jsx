@@ -10,7 +10,7 @@ export function Hero() {
           What if you could see the true value of your investment before committing hundreds of thousands?
           Let's help you understand what your money will really be worth.
         </p>
-        <a href="#calculator" className="cta-button">Show Me How</a>
+        <a href="#problem" className="cta-button">Show Me How</a>
       </div>
     </section>
   );
