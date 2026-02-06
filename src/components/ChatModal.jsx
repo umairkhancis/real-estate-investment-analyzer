@@ -40,7 +40,8 @@ export function ChatModal({ onClose }) {
 
     try {
       // Call the agent API endpoint
-      const response = await fetch('/api/agent', {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/api/agent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: userMessage })
