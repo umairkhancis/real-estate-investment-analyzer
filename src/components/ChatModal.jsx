@@ -6,7 +6,7 @@ export function ChatModal({ onClose }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hello! 👋 Welcome to your **Real Estate Companion**.\n\nI'm built using the collective intelligence of real experts from the real estate market. I can help you assess property investments with comprehensive financial analysis:\n\n**🏢 Ready Properties** - Move-in ready with rental income\n**🏗️ Off-Plan Properties** - Construction phase with dual scenarios\n\nJust describe a property you're considering, and I'll provide detailed NPV, IRR, ROIC, and DSCR analysis with clear buy/don't buy recommendations.\n\n💬 How can I help you today?"
+      content: "Hello! 👋 Welcome to your Real Estate Companion.\n\nI'm built using the collective intelligence of real experts from the real estate market. I can help you assess property investments with comprehensive financial analysis:\n\n🏢 Ready Properties - Move-in ready with rental income\n🏗️ Off-Plan Properties - Construction phase with dual scenarios\n\nJust describe a property you're considering, and I'll provide detailed NPV, IRR, ROIC, and DSCR analysis with clear buy/don't buy recommendations.\n\n💬 How can I help you today?"
     }
   ]);
   const [input, setInput] = useState('');

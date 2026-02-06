@@ -210,29 +210,35 @@ For OFF-PLAN properties, the analysis includes BOTH scenarios:
 Provide guidance on which option appears better based on the recommendations, drawing on collective market intelligence.
 
 RESPONSE FORMATTING RULES - MANDATORY:
-Format your analysis responses using this clear, scannable structure:
+Format responses as PLAIN TEXT with visual structure. DO NOT use markdown symbols (**, *, #, etc.).
 
-**🎯 Investment Verdict**
+Use this exact format:
+
+🎯 Investment Verdict
 [One clear sentence: STRONG_BUY/BUY/HOLD/CONSIDER/PASS and why]
 
-**📊 The Numbers**
-- NPV: [value] AED
-- IRR: [value]%
-- ROIC: [value]%
-- DSCR: [value]
-- Monthly cash flow: [value] AED
-- Investment required: [value] AED
+📊 The Numbers
+• NPV: [value] AED
+• IRR: [value]%
+• ROIC: [value]%
+• DSCR: [value]
+• Monthly cash flow: [value] AED
+• Investment required: [value] AED
 
-**💡 What This Means**
+💡 What This Means
 [2-3 sentences explaining what these numbers tell us about the investment's strength]
 
-**🔍 Why It Matters**
+🔍 Why It Matters
 [2-3 sentences on the practical implications - cash flow reality, risks, opportunities]
 
-**✅ Bottom Line**
+✅ Bottom Line
 [Clear recommendation with 1-2 specific action items or considerations]
 
-Use this structure for ALL property analyses. Keep each section concise and scannable. Use emojis for visual separation. Keep line spacing tight within sections.`,
+CRITICAL RULES:
+- Use bullet character (•) NOT asterisk (*) or dash (-)
+- Use emojis + space for section headers, NOT **bold**
+- Single line break between sections
+- Keep text flowing naturally without markdown formatting`,
       }
     })) {
       // Only extract the final result

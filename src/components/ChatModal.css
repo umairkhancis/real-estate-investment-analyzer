@@ -257,10 +257,16 @@
   border-bottom-left-radius: 4px;
 }
 
-/* Plain Text Only - No Markdown */
+/* Plain Text Styling - Clean & Structured */
 .message-text {
-  line-height: 1.6;
+  line-height: 1.7;
   font-size: 16px;
+  color: #1f2937;
+}
+
+/* Better readability for plain text */
+.message-wrapper.user .message-text {
+  color: white;
 }
 
 .message-loading {
