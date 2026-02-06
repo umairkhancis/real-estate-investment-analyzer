@@ -14,6 +14,7 @@
 import { PMT, NPV_Excel, IRR, PV, calculateDSCR, calculateROIC } from './financial.js';
 import Decimal from './decimalConfig.js';
 import { ZERO } from './decimalConfig.js';
+import { determineInvestmentRecommendation } from './investmentRecommendation.js';
 
 /**
  * Calculate rental metrics with exact precision
@@ -279,6 +280,14 @@ export function calculateReadyPropertyInvestment(inputs) {
     tenure
   });
 
+  // Determine investment recommendation based on calculated metrics
+  const recommendation = determineInvestmentRecommendation({
+    npv: dcfMetrics.npv,
+    irr: dcfMetrics.irr,
+    roic: dcfMetrics.roic,
+    dscr
+  });
+
   // Return comprehensive results (most values are Decimal objects)
   return {
     // Basic metrics
@@ -302,6 +311,9 @@ export function calculateReadyPropertyInvestment(inputs) {
 
     // Performance metrics (Decimal)
     dscr,
+
+    // Investment recommendation (from business logic)
+    recommendation,
 
     // Visualization (Array of Numbers)
     cashFlows,

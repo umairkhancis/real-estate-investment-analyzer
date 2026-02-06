@@ -3,23 +3,27 @@
  *
  * A conversational AI agent that helps investors analyze property deals in Dubai
  * using Claude Agent SDK and the existing financial calculation APIs.
+ *
+ * The agent is a DISPLAY LAYER ONLY. All business logic, calculations, and
+ * recommendations come from the business logic layer.
  */
 
 import 'dotenv/config';
 import Anthropic from '@anthropic-ai/sdk';
 import * as readline from 'readline';
 import { calculateReadyPropertyInvestment } from '../src/lib/readyPropertyCalculator.js';
+import Decimal from '../src/lib/decimalConfig.js';
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
   baseURL: process.env.ANTHROPIC_BASE_URL,
 });
 
-// Tool definitions for the agent
+// Tool definition - Financial Feasibility Assessment
 const tools: Anthropic.Tool[] = [
   {
-    name: 'analyze_property',
-    description: 'Analyze a property investment opportunity in Dubai. Calculates NPV, IRR, ROIC, DSCR and provides buy/don\'t buy recommendation. Required inputs: property price and size. Other parameters use sensible defaults.',
+    name: 'assess_financial_feasibility',
+    description: 'Assess financial feasibility of a Dubai property investment. Calculates NPV, IRR, ROIC, DSCR and provides investment recommendation (STRONG_BUY, BUY, MARGINAL, or DONT_BUY) with reasoning. Required: property price and size.',
     input_schema: {
       type: 'object',
       properties: {
@@ -53,100 +57,97 @@ const tools: Anthropic.Tool[] = [
 ];
 
 /**
- * Analyze property using the calculator
+ * Convert Decimal objects to JavaScript numbers recursively
+ * This is used at the display boundary only
  */
-function analyzeProperty(params: {
+function convertDecimalsToNumbers(obj: any): any {
+  if (obj === null || obj === undefined) return obj;
+
+  // Use instanceof check with Decimal.js
+  if (obj instanceof Decimal) {
+    return obj.toNumber();
+  }
+
+  // Handle arrays
+  if (Array.isArray(obj)) {
+    return obj.map(item => convertDecimalsToNumbers(item));
+  }
+
+  // Handle plain objects
+  if (obj && typeof obj === 'object') {
+    const converted: any = {};
+    for (const key in obj) {
+      converted[key] = convertDecimalsToNumbers(obj[key]);
+    }
+    return converted;
+  }
+
+  return obj;
+}
+
+/**
+ * Assess property financial feasibility using business logic layer
+ * This function is a thin wrapper that only:
+ * 1. Calls the calculator API
+ * 2. Converts Decimals to numbers for display
+ * 3. Returns the recommendation from the business logic
+ */
+function assessFinancialFeasibility(params: {
   propertyPrice: number;
   propertySize: number;
   downPaymentPercent?: number;
   rentalROI?: number;
   tenure?: number;
 }) {
+  // Prepare inputs for calculator (with Dubai market defaults)
   const inputs = {
     currency: 'AED',
     totalValue: params.propertyPrice,
     propertySize: params.propertySize,
-    downPaymentPercent: params.downPaymentPercent || 25,
+    downPaymentPercent: params.downPaymentPercent ?? 25,
     registrationFeePercent: 4,
-    tenure: params.tenure || 25,
+    tenure: params.tenure ?? 25,
     discountRate: 4,
-    rentalROI: params.rentalROI || 6,
+    rentalROI: params.rentalROI ?? 6,
     serviceChargesPerSqFt: 10,
     exitValue: params.propertyPrice * 1.2,
   };
 
+  // Call business logic layer - this handles ALL calculations and recommendations
   const results = calculateReadyPropertyInvestment(inputs);
 
-  // Recursive function to convert Decimal objects to numbers
-  function convertDecimalsToNumbers(obj: any): any {
-    if (obj === null || obj === undefined) return obj;
-
-    // Check if it's a Decimal object
-    if (obj.constructor?.name === 'Decimal') {
-      return Number(obj.toString());
-    }
-
-    // Handle arrays
-    if (Array.isArray(obj)) {
-      return obj.map(item => convertDecimalsToNumbers(item));
-    }
-
-    // Handle objects
-    if (typeof obj === 'object') {
-      const converted: any = {};
-      for (const key in obj) {
-        converted[key] = convertDecimalsToNumbers(obj[key]);
-      }
-      return converted;
-    }
-
-    return obj;
-  }
-
+  // Convert Decimal objects to numbers for display
   const clean = convertDecimalsToNumbers(results);
 
-  const npv = Number(clean.npv);
-  const irr = Number(clean.irr) * 100;
-  const roic = Number(clean.roic) * 100;
-  const dscr = Number(clean.dscr);
+  // Extract recommendation from business logic
+  const { recommendation, summary, reasoning, metrics } = clean.recommendation;
 
-  let recommendation = '';
-  let reasoning = '';
-
-  if (npv > 0 && irr > 8 && roic > 15 && dscr > 1.25) {
-    recommendation = '✅ STRONG BUY';
-    reasoning = `Excellent investment. NPV: ${npv.toFixed(0)} AED, IRR: ${irr.toFixed(1)}%, ROIC: ${roic.toFixed(1)}%, DSCR: ${dscr.toFixed(2)}`;
-  } else if (npv > 0 && irr > 5 && roic > 10) {
-    recommendation = '👍 BUY';
-    reasoning = `Viable investment. NPV: ${npv.toFixed(0)} AED, IRR: ${irr.toFixed(1)}%, ROIC: ${roic.toFixed(1)}%`;
-  } else if (npv > 0) {
-    recommendation = '⚠️ MARGINAL';
-    reasoning = `Marginal returns. NPV: ${npv.toFixed(0)} AED, IRR: ${irr.toFixed(1)}%, ROIC: ${roic.toFixed(1)}%`;
-  } else {
-    recommendation = '❌ DON\'T BUY';
-    reasoning = `Negative returns. NPV: ${npv.toFixed(0)} AED, IRR: ${irr.toFixed(1)}%`;
-  }
-
+  // Format for conversational display
   return {
-    recommendation,
-    reasoning,
-    metrics: {
-      npv: `${npv.toFixed(0)} AED`,
-      irr: `${irr.toFixed(1)}%`,
-      roic: `${roic.toFixed(1)}%`,
-      dscr: dscr.toFixed(2),
+    recommendation: recommendation,
+    summary: summary,
+    reasoning: reasoning,
+    keyMetrics: {
+      npv: `${metrics.npv.toFixed(0)} AED`,
+      irr: `${(metrics.irr * 100).toFixed(1)}%`,
+      roic: `${(metrics.roic * 100).toFixed(1)}%`,
+      dscr: metrics.dscr.toFixed(2),
+    },
+    cashFlowDetails: {
       monthlyEMI: `${clean.monthlyEMI.toFixed(0)} AED`,
       netMonthlyCashFlow: `${clean.netMonthlyCashFlow.toFixed(0)} AED`,
-    },
+      annualRental: `${clean.annualRental.toFixed(0)} AED`,
+      investmentRequired: `${clean.investedCapital.toFixed(0)} AED`,
+    }
   };
 }
 
 /**
- * Process tool calls
+ * Process tool calls - routes to appropriate handler
  */
 function processToolCall(toolName: string, toolInput: any): string {
-  if (toolName === 'analyze_property') {
-    return JSON.stringify(analyzeProperty(toolInput), null, 2);
+  if (toolName === 'assess_financial_feasibility') {
+    return JSON.stringify(assessFinancialFeasibility(toolInput), null, 2);
   }
   return 'Unknown tool';
 }
@@ -167,15 +168,31 @@ async function main() {
   console.log('🏠 Real Estate Investment Agent');
   console.log('💬 Powered by Claude Agent SDK\n');
   console.log('I can analyze property investments in Dubai!');
-  console.log('Tell me about a property and I\'ll ask for price and size.\n');
+  console.log('Tell me about a property and I\'ll assess its financial feasibility.\n');
   console.log('Type "exit" to quit.\n');
 
   const systemPrompt = `You are a professional real estate investment advisor for Dubai properties.
 
-Ask for: property price (AED) and size (sq ft).
-Use defaults for: down payment (25%), rental ROI (6%), service charges (10 AED/sqft), tenure (25 years).
+Your role is to help investors assess financial feasibility of property investments.
 
-Be conversational and provide clear buy/don't buy recommendations.`;
+When a user mentions a property, ask for:
+- Property acquisition price (in AED)
+- Property size (in square feet)
+
+Use the assess_financial_feasibility tool with these inputs. The tool will:
+- Calculate all financial metrics (NPV, IRR, ROIC, DSCR)
+- Determine the investment recommendation (STRONG_BUY, BUY, MARGINAL, or DONT_BUY)
+- Provide reasoning based on the metrics
+
+Present the recommendation naturally:
+- For STRONG_BUY: "This property is a strong buy" or "Excellent investment opportunity"
+- For BUY: "This property is a good buy" or "Solid investment opportunity"
+- For MARGINAL: "This property is marginally viable" or "Borderline investment"
+- For DONT_BUY: "I don't recommend buying this property" or "This investment is not viable"
+
+Then explain the reasoning and show key metrics in a conversational way.
+
+Remember: The tool provides ALL analysis and recommendations. Your job is to present them clearly.`;
 
   const prompt = (q: string): Promise<string> =>
     new Promise((resolve) => rl.question(q, resolve));
@@ -208,7 +225,7 @@ Be conversational and provide clear buy/don't buy recommendations.`;
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
 
         for (const toolUse of toolUses) {
-          console.log(`\n🔧 Analyzing property...`);
+          console.log(`\n🔧 Assessing financial feasibility...`);
           const result = processToolCall(toolUse.name, toolUse.input);
           toolResults.push({ type: 'tool_result', tool_use_id: toolUse.id, content: result });
         }
