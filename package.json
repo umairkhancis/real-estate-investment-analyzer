@@ -10,16 +10,20 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "agent": "tsx agent/index.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.36.1",
     "decimal.js": "^10.6.0",
+    "dotenv": "^17.2.3",
     "firebase": "^12.8.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/node": "^20.11.16",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
@@ -29,6 +33,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "firebase-tools": "^15.5.1",
     "globals": "^16.5.0",
+    "tsx": "^4.19.2",
     "vite": "^7.2.4",
     "vitest": "^4.0.18"
   }
