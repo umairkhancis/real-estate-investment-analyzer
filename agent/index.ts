@@ -12,6 +12,7 @@ import { calculateReadyPropertyInvestment } from '../src/lib/readyPropertyCalcul
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+  baseURL: process.env.ANTHROPIC_BASE_URL,
 });
 
 // Tool definitions for the agent
@@ -76,18 +77,38 @@ function analyzeProperty(params: {
 
   const results = calculateReadyPropertyInvestment(inputs);
 
-  // Convert Decimal objects to numbers
-  const clean = JSON.parse(JSON.stringify(results, (key, value) => {
-    if (value && typeof value === 'object' && value.constructor?.name === 'Decimal') {
-      return Number(value);
-    }
-    return value;
-  }));
+  // Recursive function to convert Decimal objects to numbers
+  function convertDecimalsToNumbers(obj: any): any {
+    if (obj === null || obj === undefined) return obj;
 
-  const npv = clean.npv;
-  const irr = clean.irr * 100;
-  const roic = clean.roic * 100;
-  const dscr = clean.dscr;
+    // Check if it's a Decimal object
+    if (obj.constructor?.name === 'Decimal') {
+      return Number(obj.toString());
+    }
+
+    // Handle arrays
+    if (Array.isArray(obj)) {
+      return obj.map(item => convertDecimalsToNumbers(item));
+    }
+
+    // Handle objects
+    if (typeof obj === 'object') {
+      const converted: any = {};
+      for (const key in obj) {
+        converted[key] = convertDecimalsToNumbers(obj[key]);
+      }
+      return converted;
+    }
+
+    return obj;
+  }
+
+  const clean = convertDecimalsToNumbers(results);
+
+  const npv = Number(clean.npv);
+  const irr = Number(clean.irr) * 100;
+  const roic = Number(clean.roic) * 100;
+  const dscr = Number(clean.dscr);
 
   let recommendation = '';
   let reasoning = '';
@@ -173,7 +194,7 @@ Be conversational and provide clear buy/don't buy recommendations.`;
     let continueLoop = true;
     while (continueLoop) {
       const response = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-5',
         max_tokens: 4096,
         system: systemPrompt,
         messages: conversationHistory,
