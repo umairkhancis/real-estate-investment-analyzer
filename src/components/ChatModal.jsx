@@ -1,13 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, X, Bot, User, Loader2, Sparkles } from 'lucide-react';
-import { marked } from 'marked';
 import './ChatModal.css';
-
-// Configure marked to not add extra spacing
-marked.setOptions({
-  breaks: true,  // Convert \n to <br>
-  gfm: true,     // GitHub Flavored Markdown
-});
 
 export function ChatModal({ onClose }) {
   const [messages, setMessages] = useState([
@@ -116,10 +109,9 @@ export function ChatModal({ onClose }) {
                 )}
               </div>
               <div className="message-content">
-                <div
-                  className="message-text"
-                  dangerouslySetInnerHTML={{ __html: marked(message.content) }}
-                />
+                <div className="message-text">
+                  {message.content}
+                </div>
               </div>
             </div>
           ))}
