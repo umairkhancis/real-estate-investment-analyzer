@@ -179,7 +179,7 @@ app.post('/api/agent', async (req, res) => {
     for await (const message of query({
       prompt,
       options: {
-        model: 'claude-sonnet-4-5',
+        model: 'claude-haiku-4-5',
         cwd: path.join(__dirname, '../agent'),
         settingSources: ['project'],
         allowedTools: ['Skill', 'mcp__real-estate-analysis__assess_ready_property_feasibility', 'mcp__real-estate-analysis__assess_offplan_property_feasibility'],
