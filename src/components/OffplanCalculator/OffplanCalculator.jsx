@@ -5,12 +5,14 @@ import { formatCurrency, formatPercentage } from '../../utils/formatters';
 import { currencies, getCurrencySymbol } from '../../utils/currencies';
 import { CurrencySelector } from '../CurrencySelector/CurrencySelector';
 import { AcronymTooltip } from '../AcronymTooltip/AcronymTooltip';
+import { trackCalculatorUsed } from '../../lib/analytics';
 import './OffplanCalculator.css';
 
 export function OffplanCalculator() {
   const { inputs, setInputs, results, calculate } = useOffplanCalculator();
   const [isInvestmentExpanded, setIsInvestmentExpanded] = useState(true);
   const [isMortgageExpanded, setIsMortgageExpanded] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
     calculate();
@@ -23,6 +25,12 @@ export function OffplanCalculator() {
     };
     setInputs(newInputs);
     calculate(newInputs);
+
+    // Track off-plan calculator usage (once per session)
+    if (!hasInteracted) {
+      trackCalculatorUsed('offplan', newInputs);
+      setHasInteracted(true);
+    }
   };
 
   // Calculate interpretations for metric cards

@@ -9,6 +9,7 @@ import { ChatModal } from './components/ChatModal';
 import { useReadyPropertyCalculator } from './hooks/useReadyPropertyCalculator';
 import { formatCurrency, formatPercentage } from './utils/formatters';
 import { currencies, getCurrencySymbol } from './utils/currencies';
+import { trackAppLoad, trackCalculatorUsed, trackCalculatorSwitch } from './lib/analytics';
 import './App.css';
 
 function App() {
@@ -16,6 +17,20 @@ function App() {
   const { inputs, setInputs, results, calculate } = useReadyPropertyCalculator();
   const [isDetailedBreakdownExpanded, setIsDetailedBreakdownExpanded] = useState(true);
   const [activeCalculator, setActiveCalculator] = useState('ready');
+  const [hasInteractedWithCalculator, setHasInteractedWithCalculator] = useState(false);
+
+  // Handle calculator switch
+  const handleCalculatorSwitch = (newCalculatorType) => {
+    if (activeCalculator !== newCalculatorType) {
+      trackCalculatorSwitch(activeCalculator, newCalculatorType);
+      setActiveCalculator(newCalculatorType);
+    }
+  };
+
+  // Track app load on mount
+  useEffect(() => {
+    trackAppLoad();
+  }, []);
 
   // Auto-calculate on mount
   useEffect(() => {
@@ -29,6 +44,12 @@ function App() {
     };
     setInputs(newInputs);
     calculate(newInputs);
+
+    // Track calculator interaction (only once per session)
+    if (!hasInteractedWithCalculator) {
+      trackCalculatorUsed(activeCalculator, newInputs);
+      setHasInteractedWithCalculator(true);
+    }
   };
 
   return (
@@ -42,13 +63,13 @@ function App() {
           <div className="calculator-toggle-buttons">
             <button
               className={`toggle-btn ${activeCalculator === 'ready' ? 'active' : ''}`}
-              onClick={() => setActiveCalculator('ready')}
+              onClick={() => handleCalculatorSwitch('ready')}
             >
               🏠 Ready Property (Mortgage)
           </button>
           <button
             className={`toggle-btn ${activeCalculator === 'offplan' ? 'active' : ''}`}
-            onClick={() => setActiveCalculator('offplan')}
+            onClick={() => handleCalculatorSwitch('offplan')}
           >
             🏗️ Off-Plan Property (Developer Plan)
           </button>

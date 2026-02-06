@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, X, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import { trackChatOpened, trackChatClosed, trackMessageSent, trackRateLimitHit, trackError } from '../lib/analytics';
 import './ChatModal.css';
 
 export function ChatModal({ onClose }) {
@@ -14,6 +15,7 @@ export function ChatModal({ onClose }) {
   const [remainingRequests, setRemainingRequests] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const sessionStartRef = useRef(Date.now());
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -24,8 +26,18 @@ export function ChatModal({ onClose }) {
   }, [messages]);
 
   useEffect(() => {
+    // Track chat opened
+    trackChatOpened();
+    sessionStartRef.current = Date.now();
+
     // Focus input when modal opens
     inputRef.current?.focus();
+
+    // Track chat closed on unmount
+    return () => {
+      const duration = Math.floor((Date.now() - sessionStartRef.current) / 1000);
+      trackChatClosed(duration);
+    };
   }, []);
 
   const handleSubmit = async (e) => {
@@ -34,6 +46,9 @@ export function ChatModal({ onClose }) {
 
     const userMessage = input.trim();
     setInput('');
+
+    // Track message sent
+    trackMessageSent(userMessage);
 
     // Add user message
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
@@ -51,6 +66,7 @@ export function ChatModal({ onClose }) {
       if (!response.ok) {
         // Handle rate limiting
         if (response.status === 429) {
+          trackRateLimitHit();
           const errorData = await response.json();
           const retryAfter = response.headers.get('Retry-After') || 'later';
 
@@ -79,6 +95,7 @@ export function ChatModal({ onClose }) {
       }]);
     } catch (error) {
       console.error('Error:', error);
+      trackError('api_error', error.message);
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: '❌ Sorry, I encountered an error. Please try again or check your connection.'
