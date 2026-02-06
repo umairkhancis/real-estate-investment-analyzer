@@ -11,6 +11,7 @@ export function ChatModal({ onClose }) {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [remainingRequests, setRemainingRequests] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -48,10 +49,28 @@ export function ChatModal({ onClose }) {
       });
 
       if (!response.ok) {
+        // Handle rate limiting
+        if (response.status === 429) {
+          const errorData = await response.json();
+          const retryAfter = response.headers.get('Retry-After') || 'later';
+
+          setMessages(prev => [...prev, {
+            role: 'assistant',
+            content: `⏱️ Rate Limit Reached\n\n${errorData.error || 'Too many requests.'}\n\nPlease try again ${errorData.retryAfter || retryAfter}.`
+          }]);
+          return;
+        }
+
         throw new Error('Failed to get response from agent');
       }
 
       const data = await response.json();
+
+      // Update remaining requests from headers
+      const remaining = response.headers.get('X-RateLimit-Remaining');
+      if (remaining !== null) {
+        setRemainingRequests(parseInt(remaining));
+      }
 
       // Add assistant response
       setMessages(prev => [...prev, {
@@ -82,6 +101,11 @@ export function ChatModal({ onClose }) {
             <div className="chat-header-text">
               <h3>Real Estate Companion</h3>
               <p>Built using collective intelligence of real experts of real estate market</p>
+              {remainingRequests !== null && remainingRequests < 20 && (
+                <small style={{ opacity: 0.8, fontSize: '0.85em' }}>
+                  {remainingRequests} requests remaining today
+                </small>
+              )}
             </div>
           </div>
           <div className="chat-header-actions">

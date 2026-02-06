@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import { query, tool, createSdkMcpServer } from '@anthropic-ai/claude-agent-sdk';
 import { z } from 'zod';
 import { calculateReadyPropertyInvestment } from '../src/lib/readyPropertyCalculator.js';
@@ -15,8 +16,23 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Rate limiting configuration
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 requests per windowMs
+  message: {
+    error: 'Too many requests. Please try again in 15 minutes.',
+    retryAfter: '15 minutes'
+  },
+  standardHeaders: true, // Return rate limit info in headers
+  legacyHeaders: false,
+});
+
 app.use(cors());
 app.use(express.json());
+
+// Apply rate limiting to agent endpoint
+app.use('/api/agent', apiLimiter);
 
 // Helper to convert Decimal.js to numbers
 function convertDecimalsToNumbers(obj) {
@@ -164,6 +180,22 @@ const realEstateServer = createSdkMcpServer({
   ]
 });
 
+// Usage tracking (simple in-memory - replace with database for production)
+let dailyUsage = {
+  date: new Date().toDateString(),
+  requestCount: 0,
+  estimatedTokens: 0
+};
+
+// Reset daily usage at midnight
+setInterval(() => {
+  const today = new Date().toDateString();
+  if (dailyUsage.date !== today) {
+    console.log(`📊 Daily usage reset. Previous day: ${dailyUsage.requestCount} requests, ~${dailyUsage.estimatedTokens} tokens`);
+    dailyUsage = { date: today, requestCount: 0, estimatedTokens: 0 };
+  }
+}, 60000); // Check every minute
+
 // Agent endpoint
 app.post('/api/agent', async (req, res) => {
   try {
@@ -172,6 +204,21 @@ app.post('/api/agent', async (req, res) => {
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
     }
+
+    // Track usage
+    dailyUsage.requestCount++;
+    dailyUsage.estimatedTokens += prompt.length + 1000; // Rough estimate
+
+    // Optional: Hard limit on daily usage
+    const DAILY_REQUEST_LIMIT = 100;
+    if (dailyUsage.requestCount > DAILY_REQUEST_LIMIT) {
+      return res.status(429).json({
+        error: 'Daily usage limit reached. Please try again tomorrow.',
+        usage: dailyUsage
+      });
+    }
+
+    console.log(`📈 Request ${dailyUsage.requestCount} today | Estimated tokens: ${dailyUsage.estimatedTokens}`);
 
     let result = '';
 
@@ -246,6 +293,11 @@ CRITICAL RULES:
         result = message.result;
       }
     }
+
+    // Include rate limit info in response headers
+    const remaining = DAILY_REQUEST_LIMIT - dailyUsage.requestCount;
+    res.set('X-RateLimit-Remaining', remaining.toString());
+    res.set('X-RateLimit-Limit', DAILY_REQUEST_LIMIT.toString());
 
     res.json({ result });
   } catch (error) {
