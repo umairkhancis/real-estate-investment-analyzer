@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, X, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import './ChatModal.css';
 
 export function ChatModal({ onClose }) {
@@ -110,7 +111,7 @@ export function ChatModal({ onClose }) {
               </div>
               <div className="message-content">
                 <div className="message-text">
-                  {message.content}
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
                 </div>
               </div>
             </div>

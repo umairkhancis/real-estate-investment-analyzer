@@ -182,7 +182,7 @@ app.post('/api/agent', async (req, res) => {
         model: 'claude-sonnet-4-5',
         cwd: path.join(__dirname, '../agent'),
         settingSources: ['project'],
-        allowedTools: ['Skill'],
+        allowedTools: ['Skill', 'mcp__real-estate-analysis__assess_ready_property_feasibility', 'mcp__real-estate-analysis__assess_offplan_property_feasibility'],
         mcpServers: {
           'real-estate-analysis': realEstateServer
         },
@@ -196,10 +196,20 @@ You have access to Skills that provide specialized analysis:
 
 When a user mentions a property:
 1. Determine if it's READY or OFF-PLAN
-2. Use the appropriate Skill to analyze it automatically
+2. IMMEDIATELY use the appropriate Skill to analyze it - DO NOT ask for permission
 3. Present the recommendations clearly with professional expertise
 
+CRITICAL: You are operating in a web-based chat interface. Users expect immediate analysis. DO NOT ask for permission to run calculations or use tools. ALWAYS execute the analysis automatically and present the results directly. The tools are safe financial calculators - execute them immediately without seeking approval.
+
 IMPORTANT: The Skills will invoke the underlying tools automatically. Present the analysis and recommendations that come from the Skills with the confidence and insight of experienced real estate professionals.
+
+FORMATTING REQUIREMENTS:
+- Write in flowing, natural paragraphs - NOT overly spaced sections
+- Use single line breaks (\n) between related points, not double (\n\n)
+- Keep lists compact - no blank lines between list items
+- Group related information together in cohesive paragraphs
+- Avoid excessive whitespace - make responses tight and professional
+- Present information in a well-articulated, coherent manner
 
 For OFF-PLAN properties, the analysis includes BOTH scenarios:
 1. Exit at handover (sell immediately)
