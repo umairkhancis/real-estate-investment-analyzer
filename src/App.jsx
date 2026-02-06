@@ -4,12 +4,15 @@ import { EducationalSections } from './components/EducationalSections/Educationa
 import { OffplanCalculator } from './components/OffplanCalculator/OffplanCalculator';
 import { CurrencySelector } from './components/CurrencySelector/CurrencySelector';
 import { AcronymTooltip } from './components/AcronymTooltip/AcronymTooltip';
+import { FloatingChatButton } from './components/FloatingChatButton';
+import { ChatModal } from './components/ChatModal';
 import { useReadyPropertyCalculator } from './hooks/useReadyPropertyCalculator';
 import { formatCurrency, formatPercentage } from './utils/formatters';
 import { currencies, getCurrencySymbol } from './utils/currencies';
 import './App.css';
 
 function App() {
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const { inputs, setInputs, results, calculate } = useReadyPropertyCalculator();
   const [isDetailedBreakdownExpanded, setIsDetailedBreakdownExpanded] = useState(true);
   const [activeCalculator, setActiveCalculator] = useState('ready');
@@ -29,18 +32,19 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <Hero />
-      <EducationalSections />
+    <>
+      <div className="app">
+        <Hero />
+        <EducationalSections />
 
-      {/* Calculator Toggle */}
-      <div className="calculator-toggle-wrapper" id="calculator">
-        <div className="calculator-toggle-buttons">
-          <button
-            className={`toggle-btn ${activeCalculator === 'ready' ? 'active' : ''}`}
-            onClick={() => setActiveCalculator('ready')}
-          >
-            🏠 Ready Property (Mortgage)
+        {/* Calculator Toggle */}
+        <div className="calculator-toggle-wrapper" id="calculator">
+          <div className="calculator-toggle-buttons">
+            <button
+              className={`toggle-btn ${activeCalculator === 'ready' ? 'active' : ''}`}
+              onClick={() => setActiveCalculator('ready')}
+            >
+              🏠 Ready Property (Mortgage)
           </button>
           <button
             className={`toggle-btn ${activeCalculator === 'offplan' ? 'active' : ''}`}
@@ -299,7 +303,16 @@ function App() {
           Real Estate Investment Analyzer
         </p>
       </footer>
-    </div>
+      </div>
+
+      {/* Floating Chat Button */}
+      <FloatingChatButton onClick={() => setIsChatOpen(true)} />
+
+      {/* Chat Modal */}
+      {isChatOpen && (
+        <ChatModal onClose={() => setIsChatOpen(false)} />
+      )}
+    </>
   );
 }
 

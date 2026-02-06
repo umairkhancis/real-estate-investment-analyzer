@@ -1,3 +1,4 @@
+import { Calculator } from 'lucide-react';
 import './EducationalSections.css';
 
 export function EducationalSections() {
@@ -258,11 +259,25 @@ export function EducationalSections() {
         <div className="ready-section">
           <h2 style={{ color: '#667eea', marginTop: '60px' }}>Ready to Analyze YOUR Investment?</h2>
           <p style={{ fontSize: '1.2em', marginBottom: '30px' }}>
-            Use our calculator below to see the DCF, NPV, IRR, DSCR, and ROIC for any property investment.
+            Choose your preferred way to analyze property investments:
           </p>
-          <a href="#calculator" className="cta-button" style={{ fontSize: '1.2em', padding: '20px 50px' }}>
-            Calculate My Investment →
-          </a>
+          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="#calculator" className="cta-button" style={{ fontSize: '1.1em', padding: '18px 40px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Calculator size={20} />
+              Analyze My Investment
+            </a>
+            <button
+              onClick={() => {
+                // Trigger the floating chat button
+                const chatButton = document.querySelector('.floating-chat-button');
+                if (chatButton) chatButton.click();
+              }}
+              className="cta-button cta-button-secondary"
+              style={{ fontSize: '1.1em', padding: '18px 40px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none', cursor: 'pointer' }}
+            >
+              💬 Real Estate Experts Intelligence
+            </button>
+          </div>
         </div>
       </section>
     </>
