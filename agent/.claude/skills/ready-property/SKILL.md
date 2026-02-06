@@ -1,7 +1,12 @@
-# Financial Feasibility Analysis Skill
+---
+name: ready-property-analysis
+description: Assess financial feasibility of ready (move-in ready) Dubai property investments with immediate rental income. Use when user mentions ready properties, completed properties, or properties with rental income. Calculates NPV, IRR, ROIC, DSCR and provides buy/don't buy recommendations.
+---
+
+# Ready Property Financial Feasibility Analysis Skill
 
 ## Purpose
-This skill enables conversational assessment of Dubai real estate property investments using comprehensive financial analysis. It determines whether a property is financially viable based on NPV, IRR, ROIC, and DSCR metrics calculated by the underlying business logic layer.
+This skill enables conversational assessment of Dubai **ready property investments** (move-in ready properties with immediate rental income) using comprehensive financial analysis. It determines whether a property is financially viable based on NPV, IRR, ROIC, and DSCR metrics calculated by the underlying business logic layer.
 
 ## When to Use This Skill
 

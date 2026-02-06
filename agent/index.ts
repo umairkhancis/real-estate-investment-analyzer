@@ -1,79 +1,41 @@
 /**
- * Real Estate Investment Agent
+ * Real Estate Investment Agent - Using Claude Agent SDK
  *
- * A conversational AI agent that helps investors analyze property deals in Dubai
- * using Claude Agent SDK and the existing financial calculation APIs.
+ * This agent uses the Claude Agent SDK to automatically discover and invoke
+ * Skills from the filesystem. Skills are loaded from .claude/skills/ directory.
  *
- * The agent is a DISPLAY LAYER ONLY. All business logic, calculations, and
- * recommendations come from the business logic layer.
+ * Skills:
+ * - ready-property: Assess ready property financial feasibility
+ * - offplan-property: Assess off-plan property financial feasibility
  */
 
 import 'dotenv/config';
-import Anthropic from '@anthropic-ai/sdk';
-import * as readline from 'readline';
+import { query, tool, createSdkMcpServer } from '@anthropic-ai/claude-agent-sdk';
+import { z } from 'zod';
 import { calculateReadyPropertyInvestment } from '../src/lib/readyPropertyCalculator.js';
+import { calculateOffplanInvestment, calculateMortgageContinuation } from '../src/lib/offplanCalculatorRefactored.js';
 import Decimal from '../src/lib/decimalConfig.js';
+import * as readline from 'readline';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-  baseURL: process.env.ANTHROPIC_BASE_URL,
-});
-
-// Tool definition - Financial Feasibility Assessment
-const tools: Anthropic.Tool[] = [
-  {
-    name: 'assess_financial_feasibility',
-    description: 'Assess financial feasibility of a Dubai property investment. Calculates NPV, IRR, ROIC, DSCR and provides investment recommendation (STRONG_BUY, BUY, MARGINAL, or DONT_BUY) with reasoning. Required: property price and size.',
-    input_schema: {
-      type: 'object',
-      properties: {
-        propertyPrice: {
-          type: 'number',
-          description: 'Total property acquisition price in AED',
-        },
-        propertySize: {
-          type: 'number',
-          description: 'Property size in square feet',
-        },
-        downPaymentPercent: {
-          type: 'number',
-          description: 'Down payment percentage (default: 25%)',
-          default: 25,
-        },
-        rentalROI: {
-          type: 'number',
-          description: 'Expected annual rental ROI percentage (default: 6%)',
-          default: 6,
-        },
-        tenure: {
-          type: 'number',
-          description: 'Mortgage tenure in years (default: 25)',
-          default: 25,
-        },
-      },
-      required: ['propertyPrice', 'propertySize'],
-    },
-  },
-];
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Convert Decimal objects to JavaScript numbers recursively
- * This is used at the display boundary only
  */
 function convertDecimalsToNumbers(obj: any): any {
   if (obj === null || obj === undefined) return obj;
 
-  // Use instanceof check with Decimal.js
   if (obj instanceof Decimal) {
     return obj.toNumber();
   }
 
-  // Handle arrays
   if (Array.isArray(obj)) {
     return obj.map(item => convertDecimalsToNumbers(item));
   }
 
-  // Handle plain objects
   if (obj && typeof obj === 'object') {
     const converted: any = {};
     for (const key in obj) {
@@ -86,74 +48,177 @@ function convertDecimalsToNumbers(obj: any): any {
 }
 
 /**
- * Assess property financial feasibility using business logic layer
- * This function is a thin wrapper that only:
- * 1. Calls the calculator API
- * 2. Converts Decimals to numbers for display
- * 3. Returns the recommendation from the business logic
+ * Create MCP Server with custom tools
  */
-function assessFinancialFeasibility(params: {
-  propertyPrice: number;
-  propertySize: number;
-  downPaymentPercent?: number;
-  rentalROI?: number;
-  tenure?: number;
-}) {
-  // Prepare inputs for calculator (with Dubai market defaults)
-  const inputs = {
-    currency: 'AED',
-    totalValue: params.propertyPrice,
-    propertySize: params.propertySize,
-    downPaymentPercent: params.downPaymentPercent ?? 25,
-    registrationFeePercent: 4,
-    tenure: params.tenure ?? 25,
-    discountRate: 4,
-    rentalROI: params.rentalROI ?? 6,
-    serviceChargesPerSqFt: 10,
-    exitValue: params.propertyPrice * 1.2,
-  };
+const realEstateServer = createSdkMcpServer({
+  name: 'real-estate-analysis',
+  version: '1.0.0',
+  tools: [
+    tool(
+      'assess_ready_property_feasibility',
+      'Assess financial feasibility of a READY Dubai property investment (move-in ready, with immediate rental income). Calculates NPV, IRR, ROIC, DSCR and provides investment recommendation with reasoning. Required: property price and size.',
+      {
+        propertyPrice: z.number().describe('Total property acquisition price in AED'),
+        propertySize: z.number().describe('Property size in square feet'),
+        downPaymentPercent: z.number().optional().describe('Down payment percentage (default: 25%)'),
+        rentalROI: z.number().optional().describe('Expected annual rental ROI percentage (default: 6%)'),
+        tenure: z.number().optional().describe('Mortgage tenure in years (default: 25)'),
+      },
+      async (params: any) => {
+        const inputs = {
+          currency: 'AED',
+          totalValue: params.propertyPrice,
+          propertySize: params.propertySize,
+          downPaymentPercent: params.downPaymentPercent ?? 25,
+          registrationFeePercent: 4,
+          tenure: params.tenure ?? 25,
+          discountRate: 4,
+          rentalROI: params.rentalROI ?? 6,
+          serviceChargesPerSqFt: 10,
+          exitValue: params.propertyPrice * 1.2,
+        };
 
-  // Call business logic layer - this handles ALL calculations and recommendations
-  const results = calculateReadyPropertyInvestment(inputs);
+        const results = calculateReadyPropertyInvestment(inputs);
+        const clean = convertDecimalsToNumbers(results);
+        const { recommendation, summary, reasoning, metrics } = clean.recommendation;
 
-  // Convert Decimal objects to numbers for display
-  const clean = convertDecimalsToNumbers(results);
+        const result = {
+          propertyType: 'READY',
+          recommendation,
+          summary,
+          reasoning,
+          keyMetrics: {
+            npv: `${metrics.npv.toFixed(0)} AED`,
+            irr: `${(metrics.irr * 100).toFixed(1)}%`,
+            roic: `${(metrics.roic * 100).toFixed(1)}%`,
+            dscr: metrics.dscr.toFixed(2),
+          },
+          cashFlowDetails: {
+            monthlyEMI: `${clean.monthlyEMI.toFixed(0)} AED`,
+            netMonthlyCashFlow: `${clean.netMonthlyCashFlow.toFixed(0)} AED`,
+            annualRental: `${clean.annualRental.toFixed(0)} AED`,
+            investmentRequired: `${clean.investedCapital.toFixed(0)} AED`,
+          }
+        };
 
-  // Extract recommendation from business logic
-  const { recommendation, summary, reasoning, metrics } = clean.recommendation;
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
+          }]
+        };
+      }
+    ),
+    tool(
+      'assess_offplan_property_feasibility',
+      'Assess financial feasibility of an OFF-PLAN Dubai property investment (under construction, with developer payment plan). Analyzes BOTH scenarios (exit at handover vs continue with mortgage). Required: property price and size.',
+      {
+        propertyPrice: z.number().describe('Total property purchase price in AED'),
+        propertySize: z.number().describe('Property size in square feet'),
+        constructionTenureYears: z.number().optional().describe('Construction period in years (default: 3)'),
+        futurePricePerSqft: z.number().optional().describe('Expected price per sqft at handover in AED'),
+        downPaymentPercent: z.number().optional().describe('Down payment percentage for off-plan (default: 10%)'),
+        installmentPercent: z.number().optional().describe('Installment percentage per payment period (default: 5%)'),
+        paymentFrequencyMonths: z.number().optional().describe('Payment frequency in months (default: 6 months)'),
+      },
+      async (params: any) => {
+        const constructionYears = params.constructionTenureYears ?? 3;
+        const currentPricePerSqft = params.propertyPrice / params.propertySize;
+        const futurePricePerSqft = params.futurePricePerSqft ?? (currentPricePerSqft * 1.2);
 
-  // Format for conversational display
-  return {
-    recommendation: recommendation,
-    summary: summary,
-    reasoning: reasoning,
-    keyMetrics: {
-      npv: `${metrics.npv.toFixed(0)} AED`,
-      irr: `${(metrics.irr * 100).toFixed(1)}%`,
-      roic: `${(metrics.roic * 100).toFixed(1)}%`,
-      dscr: metrics.dscr.toFixed(2),
-    },
-    cashFlowDetails: {
-      monthlyEMI: `${clean.monthlyEMI.toFixed(0)} AED`,
-      netMonthlyCashFlow: `${clean.netMonthlyCashFlow.toFixed(0)} AED`,
-      annualRental: `${clean.annualRental.toFixed(0)} AED`,
-      investmentRequired: `${clean.investedCapital.toFixed(0)} AED`,
-    }
-  };
-}
+        const inputs = {
+          size: params.propertySize,
+          totalValue: params.propertyPrice,
+          downPaymentPercent: (params.downPaymentPercent ?? 10) / 100,
+          constructionTenureYears: constructionYears,
+          paymentFrequencyMonths: params.paymentFrequencyMonths ?? 6,
+          installmentPercent: (params.installmentPercent ?? 5) / 100,
+          discountRate: 0.04,
+          futurePricePerSqft: futurePricePerSqft,
+          registrationFeePercent: 0.04,
+        };
+
+        const constructionResults = calculateOffplanInvestment(inputs);
+        const constructionClean = convertDecimalsToNumbers(constructionResults);
+        const constructionRec = constructionClean.recommendation;
+
+        const mortgageInputs = {
+          size: params.propertySize,
+          totalValue: params.propertyPrice,
+          registrationFeePercent: 4,
+          tenure: 25,
+          discountRate: 4,
+          rentalROI: 6,
+          serviceChargesPerSqFt: 10,
+          exitValue: futurePricePerSqft * params.propertySize,
+        };
+
+        const mortgageResults = calculateMortgageContinuation({
+          offplanResults: constructionResults,
+          mortgageInputs: mortgageInputs,
+          readyPropertyCalculator: calculateReadyPropertyInvestment,
+        });
+
+        const mortgageClean = convertDecimalsToNumbers(mortgageResults);
+        const mortgageRec = mortgageClean.recommendation;
+
+        const result = {
+          propertyType: 'OFFPLAN',
+          exitAtHandover: {
+            scenario: 'Exit at Handover',
+            recommendation: constructionRec.recommendation,
+            summary: constructionRec.summary,
+            reasoning: constructionRec.reasoning,
+            keyMetrics: {
+              npv: `${constructionRec.metrics.npv.toFixed(0)} AED`,
+              irr: `${(constructionRec.metrics.irr * 100).toFixed(1)}%`,
+              roic: `${(constructionRec.metrics.roic * 100).toFixed(1)}%`,
+            },
+            constructionDetails: {
+              downPayment: `${constructionClean.downPaymentAmount.toFixed(0)} AED`,
+              totalPaymentDuringConstruction: `${constructionClean.totalPaymentTillHandover.toFixed(0)} AED`,
+              numberOfPayments: constructionClean.numberOfPayments,
+              constructionYears: constructionYears,
+              exitValueAtHandover: `${constructionClean.exitValueNominal.toFixed(0)} AED`,
+            }
+          },
+          continueWithMortgage: {
+            scenario: 'Continue with Mortgage',
+            recommendation: mortgageRec.recommendation,
+            summary: mortgageRec.summary,
+            reasoning: mortgageRec.reasoning,
+            keyMetrics: {
+              npv: `${mortgageRec.metrics.npv.toFixed(0)} AED`,
+              irr: `${(mortgageRec.metrics.irr * 100).toFixed(1)}%`,
+              roic: `${(mortgageRec.metrics.roic * 100).toFixed(1)}%`,
+              dscr: mortgageRec.metrics.dscr.toFixed(2),
+            },
+            holdingDetails: {
+              totalInvestment: `${mortgageClean.totalInvestment.toFixed(0)} AED`,
+              yearsToFullExit: mortgageClean.yearsToFullExit,
+              monthlyEMI: `${mortgageClean.monthlyEMI.toFixed(0)} AED`,
+              netMonthlyCashFlow: `${mortgageClean.netMonthlyCashFlow.toFixed(0)} AED`,
+            }
+          },
+          decisionPoint: {
+            atHandover: `At handover (after ${constructionYears} years), you have two options`,
+            exitProfit: `${constructionClean.exitValueNominal.toFixed(0)} AED`,
+          }
+        };
+
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
+          }]
+        };
+      }
+    )
+  ]
+});
 
 /**
- * Process tool calls - routes to appropriate handler
- */
-function processToolCall(toolName: string, toolInput: any): string {
-  if (toolName === 'assess_financial_feasibility') {
-    return JSON.stringify(assessFinancialFeasibility(toolInput), null, 2);
-  }
-  return 'Unknown tool';
-}
-
-/**
- * Main conversation loop
+ * Main function - Run the agent with Skills
  */
 async function main() {
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -162,37 +227,17 @@ async function main() {
     process.exit(1);
   }
 
-  const conversationHistory: Anthropic.MessageParam[] = [];
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-
   console.log('🏠 Real Estate Investment Agent');
   console.log('💬 Powered by Claude Agent SDK\n');
-  console.log('I can analyze property investments in Dubai!');
-  console.log('Tell me about a property and I\'ll assess its financial feasibility.\n');
-  console.log('Type "exit" to quit.\n');
+  console.log('📋 Skills loaded from .claude/skills/');
+  console.log('  ✅ ready-property: Ready property financial feasibility');
+  console.log('  ✅ offplan-property: Off-plan property financial feasibility\n');
+  console.log('Type your property details or type "exit" to quit.\n');
 
-  const systemPrompt = `You are a professional real estate investment advisor for Dubai properties.
-
-Your role is to help investors assess financial feasibility of property investments.
-
-When a user mentions a property, ask for:
-- Property acquisition price (in AED)
-- Property size (in square feet)
-
-Use the assess_financial_feasibility tool with these inputs. The tool will:
-- Calculate all financial metrics (NPV, IRR, ROIC, DSCR)
-- Determine the investment recommendation (STRONG_BUY, BUY, MARGINAL, or DONT_BUY)
-- Provide reasoning based on the metrics
-
-Present the recommendation naturally:
-- For STRONG_BUY: "This property is a strong buy" or "Excellent investment opportunity"
-- For BUY: "This property is a good buy" or "Solid investment opportunity"
-- For MARGINAL: "This property is marginally viable" or "Borderline investment"
-- For DONT_BUY: "I don't recommend buying this property" or "This investment is not viable"
-
-Then explain the reasoning and show key metrics in a conversational way.
-
-Remember: The tool provides ALL analysis and recommendations. Your job is to present them clearly.`;
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
 
   const prompt = (q: string): Promise<string> =>
     new Promise((resolve) => rl.question(q, resolve));
@@ -206,40 +251,60 @@ Remember: The tool provides ALL analysis and recommendations. Your job is to pre
       break;
     }
 
-    conversationHistory.push({ role: 'user', content: userInput });
-
-    let continueLoop = true;
-    while (continueLoop) {
-      const response = await client.messages.create({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 4096,
-        system: systemPrompt,
-        messages: conversationHistory,
-        tools: tools,
-      });
-
-      conversationHistory.push({ role: 'assistant', content: response.content });
-
-      if (response.stop_reason === 'tool_use') {
-        const toolUses = response.content.filter((b) => b.type === 'tool_use') as Anthropic.ToolUseBlock[];
-        const toolResults: Anthropic.ToolResultBlockParam[] = [];
-
-        for (const toolUse of toolUses) {
-          console.log(`\n🔧 Assessing financial feasibility...`);
-          const result = processToolCall(toolUse.name, toolUse.input);
-          toolResults.push({ type: 'tool_result', tool_use_id: toolUse.id, content: result });
-        }
-
-        conversationHistory.push({ role: 'user', content: toolResults });
-      } else {
-        const textBlocks = response.content.filter((b) => b.type === 'text') as Anthropic.TextBlock[];
-        for (const text of textBlocks) {
-          console.log('\nAgent:', text.text);
-        }
-        continueLoop = false;
-      }
+    if (!userInput.trim()) {
+      continue;
     }
-    console.log('\n');
+
+    try {
+      console.log();
+
+      // Use the Agent SDK query function with Skills enabled
+      // Note: API key is read from ANTHROPIC_API_KEY environment variable
+      for await (const message of query({
+        prompt: userInput,
+        options: {
+          model: 'claude-sonnet-4-5',
+          cwd: __dirname,  // Project directory containing .claude/skills/
+          settingSources: ['project'],  // Load Skills from .claude/skills/
+          allowedTools: ['Skill'],
+          mcpServers: {
+            'real-estate-analysis': realEstateServer  // Add custom MCP server with tools
+          },
+          systemPrompt: `You are a professional real estate investment advisor for Dubai properties.
+
+Your role is to help investors assess financial feasibility of property investments - both READY and OFF-PLAN properties.
+
+You have access to Skills that provide specialized analysis:
+- ready-property: For move-in ready properties with immediate rental income
+- offplan-property: For properties under construction with developer payment plans
+
+You also have access to custom tools:
+- assess_ready_property_feasibility: Direct tool for ready property analysis
+- assess_offplan_property_feasibility: Direct tool for off-plan property analysis
+
+When a user mentions a property:
+1. Determine if it's READY or OFF-PLAN
+2. Use the appropriate Skill or tool to analyze it automatically
+3. Present the recommendations clearly
+
+IMPORTANT: The Skills will invoke the underlying tools automatically. Present the analysis and recommendations that come from the Skills.
+
+For OFF-PLAN properties, the analysis includes BOTH scenarios:
+1. Exit at handover (sell immediately)
+2. Continue with mortgage (hold and rent)
+
+Provide guidance on which option appears better based on the recommendations.`,
+        }
+      })) {
+        if (typeof message === 'string') {
+          console.log(message);
+        }
+      }
+
+      console.log('\n');
+    } catch (error) {
+      console.error('Error:', error);
+    }
   }
 }
 

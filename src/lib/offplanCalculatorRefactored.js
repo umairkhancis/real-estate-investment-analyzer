@@ -13,6 +13,7 @@
 
 import { NPV_Excel, IRR, PV, calculateROIC } from './financial.js';
 import Decimal from './decimalConfig.js';
+import { determineOffplanRecommendation } from './offplanRecommendation.js';
 
 /**
  * Calculate construction payment structure with exact precision
@@ -285,6 +286,13 @@ export function calculateOffplanInvestment(inputs) {
     downPaymentAmount: payments.downPaymentAmount
   });
 
+  // Determine investment recommendation based on calculated metrics
+  const recommendation = determineOffplanRecommendation({
+    npv: dcfMetrics.npv,
+    irr: dcfMetrics.irr,
+    roic: dcfMetrics.roic
+  });
+
   // Return comprehensive results (most values are Decimal objects)
   return {
     // Input echoes for reference
@@ -303,6 +311,9 @@ export function calculateOffplanInvestment(inputs) {
 
     // DCF metrics (all Decimal)
     ...dcfMetrics,
+
+    // Investment recommendation (from business logic)
+    recommendation,
 
     // Cash flows for visualization (Array of Numbers)
     cashFlows,
