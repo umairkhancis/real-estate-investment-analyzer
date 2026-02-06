@@ -281,13 +281,31 @@
 
 .message-text ul,
 .message-text ol {
-  margin: 8px 0;
-  padding-left: 24px;
+  margin: 10px 0;
+  padding-left: 28px;
 }
 
 .message-text li {
   margin: 0;
-  line-height: 1.5;
+  padding: 0;
+  line-height: 1.1;
+}
+
+/* Only add minimal spacing between adjacent list items */
+.message-text li + li {
+  margin-top: 3px;
+}
+
+/* Aggressively remove spacing from paragraphs inside list items */
+.message-text li p {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: inline;
+}
+
+.message-text li > p:only-child {
+  display: inline;
+  margin: 0 !important;
 }
 
 .message-text code {
@@ -319,14 +337,23 @@
 .message-text h2,
 .message-text h3,
 .message-text h4 {
-  margin: 10px 0 6px 0;
+  margin: 16px 0 8px 0;
   font-weight: 600;
+  line-height: 1.4;
+}
+
+/* First heading should have less top margin */
+.message-text h1:first-child,
+.message-text h2:first-child,
+.message-text h3:first-child,
+.message-text h4:first-child {
+  margin-top: 0;
 }
 
 .message-text h1 { font-size: 20px; }
 .message-text h2 { font-size: 18px; }
-.message-text h3 { font-size: 16px; }
-.message-text h4 { font-size: 15px; }
+.message-text h3 { font-size: 17px; }
+.message-text h4 { font-size: 16px; }
 
 .message-text blockquote {
   border-left: 3px solid rgba(0, 0, 0, 0.1);

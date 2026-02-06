@@ -275,7 +275,7 @@ export function EducationalSections() {
               className="cta-button cta-button-secondary"
               style={{ fontSize: '1.1em', padding: '18px 40px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none', cursor: 'pointer' }}
             >
-              💬 Real Estate Experts Intelligence
+              💬 Real Estate Companion
             </button>
           </div>
         </div>

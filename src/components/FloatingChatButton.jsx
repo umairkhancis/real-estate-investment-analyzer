@@ -6,14 +6,14 @@ export function FloatingChatButton({ onClick }) {
     <button
       onClick={onClick}
       className="floating-chat-button"
-      aria-label="Real Estate Experts Intelligence"
+      aria-label="Real Estate Companion"
     >
       <div className="button-content">
         <Sparkles className="sparkle-icon" size={16} />
         <MessageCircle className="chat-icon" size={24} />
       </div>
       <div className="button-tooltip">
-        Real Estate Experts Intelligence
+        Real Estate Companion
       </div>
     </button>
   );

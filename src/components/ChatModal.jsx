@@ -1,13 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, X, Bot, User, Loader2, Sparkles } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { marked } from 'marked';
 import './ChatModal.css';
+
+// Configure marked to not add extra spacing
+marked.setOptions({
+  breaks: true,  // Convert \n to <br>
+  gfm: true,     // GitHub Flavored Markdown
+});
 
 export function ChatModal({ onClose }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hello! 👋 Welcome to the Collective Intelligence of Real Estate Experts.\n\nI represent the combined knowledge and analysis of Dubai's top real estate investment professionals. I can help you assess property investments with comprehensive financial analysis:\n\n**🏢 Ready Properties** - Move-in ready with rental income\n**🏗️ Off-Plan Properties** - Construction phase with dual scenarios\n\nJust describe a property you're considering, and I'll provide detailed NPV, IRR, ROIC, and DSCR analysis with clear buy/don't buy recommendations.\n\n💬 How can I help you today?"
+      content: "Hello! 👋 Welcome to your **Real Estate Companion**.\n\nI'm built using the collective intelligence of real experts from the real estate market. I can help you assess property investments with comprehensive financial analysis:\n\n**🏢 Ready Properties** - Move-in ready with rental income\n**🏗️ Off-Plan Properties** - Construction phase with dual scenarios\n\nJust describe a property you're considering, and I'll provide detailed NPV, IRR, ROIC, and DSCR analysis with clear buy/don't buy recommendations.\n\n💬 How can I help you today?"
     }
   ]);
   const [input, setInput] = useState('');
@@ -80,8 +86,8 @@ export function ChatModal({ onClose }) {
               <Sparkles className="header-sparkle" size={12} />
             </div>
             <div className="chat-header-text">
-              <h3>Real Estate Experts</h3>
-              <p>Collective Intelligence • Claude Agent SDK</p>
+              <h3>Real Estate Companion</h3>
+              <p>Built using collective intelligence of real experts of real estate market</p>
             </div>
           </div>
           <div className="chat-header-actions">
@@ -110,9 +116,10 @@ export function ChatModal({ onClose }) {
                 )}
               </div>
               <div className="message-content">
-                <div className="message-text">
-                  <ReactMarkdown>{message.content}</ReactMarkdown>
-                </div>
+                <div
+                  className="message-text"
+                  dangerouslySetInnerHTML={{ __html: marked(message.content) }}
+                />
               </div>
             </div>
           ))}
