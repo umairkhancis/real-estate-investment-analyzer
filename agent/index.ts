@@ -296,12 +296,13 @@ For OFF-PLAN properties, the analysis includes BOTH scenarios:
 Provide guidance on which option appears better based on the recommendations.`,
         }
       })) {
-        if (typeof message === 'string') {
-          console.log(message);
+        // Only show the final result message to the user
+        if (message.type === 'result' && message.result) {
+          console.log(message.result);
         }
       }
 
-      console.log('\n');
+      console.log();
     } catch (error) {
       console.error('Error:', error);
     }

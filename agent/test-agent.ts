@@ -132,8 +132,9 @@ When a user mentions a property:
 IMPORTANT: The Skills will invoke the underlying tools automatically. Present the analysis and recommendations that come from the Skills.`,
       }
     })) {
-      if (typeof message === 'string') {
-        console.log(message);
+      // Only show the final result message
+      if (message.type === 'result' && message.result) {
+        console.log(message.result);
       }
     }
 
