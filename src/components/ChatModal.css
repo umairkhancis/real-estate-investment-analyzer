@@ -257,9 +257,10 @@
   border-bottom-left-radius: 4px;
 }
 
-/* Plain Text Styling - No Markdown */
+/* Plain Text Only - No Markdown */
 .message-text {
   line-height: 1.6;
+  font-size: 16px;
 }
 
 .message-loading {
