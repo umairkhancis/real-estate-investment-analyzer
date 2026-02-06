@@ -1,0 +1,35 @@
+{
+  "name": "@real-estate-calc/core",
+  "version": "1.0.0",
+  "description": "Core calculation engine for real estate investment analysis - NPV, IRR, DCF, DSCR, ROIC",
+  "main": "src/index.js",
+  "type": "module",
+  "keywords": [
+    "real-estate",
+    "investment",
+    "calculator",
+    "NPV",
+    "IRR",
+    "DCF",
+    "DSCR",
+    "ROIC",
+    "property",
+    "finance"
+  ],
+  "author": "Umair Khan <umairkhan.cis@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/real-estate-calc"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "decimal.js": "^10.4.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Tests running in main project\""
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "tvm-calc",
+  "version": "1.0.0",
+  "description": "CLI tool for Time Value of Money calculations - NPV, IRR, PMT, FV, PV, NPER, RATE from command line",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "tvm-calc": "./src/index.js",
+    "tvm": "./src/index.js"
+  },
+  "keywords": [
+    "tvm",
+    "time-value-of-money",
+    "cli",
+    "npv",
+    "irr",
+    "pmt",
+    "fv",
+    "pv",
+    "nper",
+    "rate",
+    "finance",
+    "calculator",
+    "investment",
+    "loan"
+  ],
+  "author": "Umair Khan <umairkhan.cis@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/tvm-calc"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "@tvm-calc/core": "file:../tvm-core",
+    "commander": "^12.0.0",
+    "chalk": "^5.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}

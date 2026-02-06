@@ -1,0 +1,41 @@
+{
+  "name": "@tvm-calc/core",
+  "version": "1.0.0",
+  "description": "Time Value of Money calculator - Domain-agnostic financial functions for NPV, IRR, FV, PV, PMT, NPER, RATE calculations",
+  "main": "src/index.js",
+  "type": "module",
+  "keywords": [
+    "time-value-of-money",
+    "tvm",
+    "npv",
+    "irr",
+    "fv",
+    "pv",
+    "pmt",
+    "nper",
+    "rate",
+    "finance",
+    "financial",
+    "calculator",
+    "investment",
+    "loan",
+    "interest",
+    "compound-interest"
+  ],
+  "author": "Umair Khan <umairkhan.cis@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/tvm-calc"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "decimal.js": "^10.4.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Tests available in main project\""
+  }
+}

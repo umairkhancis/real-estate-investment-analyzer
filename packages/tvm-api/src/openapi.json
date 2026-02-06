@@ -1,0 +1,646 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Time Value of Money Calculator API",
+    "description": "Domain-agnostic REST API for financial calculations including NPV, IRR, PMT, FV, PV, NPER, RATE, and compound interest calculations. Perfect for investment analysis, loan calculations, retirement planning, and any time value of money needs.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Umair Khan",
+      "email": "umairkhan.cis@gmail.com"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://api.tvm-calc.com",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "description": "Check if the API is running",
+        "tags": ["System"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "API is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {"type": "string", "example": "healthy"},
+                    "timestamp": {"type": "string", "format": "date-time"},
+                    "version": {"type": "string", "example": "1.0.0"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api": {
+      "get": {
+        "summary": "API information",
+        "description": "Get information about available endpoints",
+        "tags": ["System"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "API information"
+          }
+        }
+      }
+    },
+    "/api/npv": {
+      "post": {
+        "summary": "Calculate Net Present Value",
+        "description": "Calculate the NPV of a series of cash flows given a discount rate. Positive NPV indicates the investment creates value.",
+        "tags": ["TVM Calculations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["rate", "cashFlows"],
+                "properties": {
+                  "rate": {
+                    "type": "number",
+                    "description": "Discount rate per period (e.g., 0.1 for 10%)",
+                    "example": 0.1
+                  },
+                  "cashFlows": {
+                    "type": "array",
+                    "items": {"type": "number"},
+                    "description": "Array of cash flows (negative for outflows, positive for inflows)",
+                    "example": [-1000, 300, 300, 300, 300]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "NPV calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NPVResponse"
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/api/irr": {
+      "post": {
+        "summary": "Calculate Internal Rate of Return",
+        "description": "Calculate the IRR of a series of cash flows. IRR is the discount rate that makes NPV equal to zero.",
+        "tags": ["TVM Calculations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["cashFlows"],
+                "properties": {
+                  "cashFlows": {
+                    "type": "array",
+                    "items": {"type": "number"},
+                    "description": "Array of cash flows (must have at least one negative and one positive)",
+                    "example": [-1000, 300, 300, 300, 300]
+                  },
+                  "guess": {
+                    "type": "number",
+                    "description": "Initial guess for IRR (optional)",
+                    "default": 0.1,
+                    "example": 0.1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "IRR calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IRRResponse"
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/api/pmt": {
+      "post": {
+        "summary": "Calculate Payment",
+        "description": "Calculate the periodic payment for a loan or annuity. Perfect for mortgage and loan calculations.",
+        "tags": ["TVM Calculations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["rate", "nper", "pv"],
+                "properties": {
+                  "rate": {"type": "number", "description": "Interest rate per period", "example": 0.00333},
+                  "nper": {"type": "number", "description": "Number of periods", "example": 360},
+                  "pv": {"type": "number", "description": "Present value (loan amount)", "example": -100000},
+                  "fv": {"type": "number", "description": "Future value (optional)", "default": 0},
+                  "type": {"type": "number", "description": "Payment timing: 0=end of period, 1=beginning", "enum": [0, 1], "default": 0}
+                }
+              },
+              "examples": {
+                "mortgage": {
+                  "summary": "30-year mortgage",
+                  "value": {
+                    "rate": 0.00333,
+                    "nper": 360,
+                    "pv": -100000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PMTResponse"
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/api/fv": {
+      "post": {
+        "summary": "Calculate Future Value",
+        "description": "Calculate the future value of an investment with regular payments and compound interest.",
+        "tags": ["TVM Calculations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["rate", "nper", "pmt"],
+                "properties": {
+                  "rate": {"type": "number", "description": "Interest rate per period", "example": 0.005},
+                  "nper": {"type": "number", "description": "Number of periods", "example": 120},
+                  "pmt": {"type": "number", "description": "Payment per period", "example": -1000},
+                  "pv": {"type": "number", "description": "Present value (optional)", "default": 0},
+                  "type": {"type": "number", "description": "Payment timing: 0=end, 1=beginning", "enum": [0, 1], "default": 0}
+                }
+              },
+              "examples": {
+                "savings": {
+                  "summary": "Monthly savings plan",
+                  "value": {
+                    "rate": 0.005,
+                    "nper": 120,
+                    "pmt": -1000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Future value calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FVResponse"
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/api/pv": {
+      "post": {
+        "summary": "Calculate Present Value",
+        "description": "Calculate the present value of a series of future payments or cash flows.",
+        "tags": ["TVM Calculations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["rate", "nper", "pmt"],
+                "properties": {
+                  "rate": {"type": "number", "example": 0.005},
+                  "nper": {"type": "number", "example": 120},
+                  "pmt": {"type": "number", "example": 1000},
+                  "fv": {"type": "number", "default": 0},
+                  "type": {"type": "number", "enum": [0, 1], "default": 0}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Present value calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PVResponse"
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/api/nper": {
+      "post": {
+        "summary": "Calculate Number of Periods",
+        "description": "Calculate how many periods are needed to pay off a loan or reach a savings goal.",
+        "tags": ["TVM Calculations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["rate", "pmt", "pv"],
+                "properties": {
+                  "rate": {"type": "number", "example": 0.01},
+                  "pmt": {"type": "number", "example": 500},
+                  "pv": {"type": "number", "example": -10000},
+                  "fv": {"type": "number", "default": 0},
+                  "type": {"type": "number", "enum": [0, 1], "default": 0}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Number of periods calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NPERResponse"
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/api/rate": {
+      "post": {
+        "summary": "Calculate Interest Rate",
+        "description": "Calculate the interest rate given payment amount, number of periods, and loan amount.",
+        "tags": ["TVM Calculations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["nper", "pmt", "pv"],
+                "properties": {
+                  "nper": {"type": "number", "example": 24},
+                  "pmt": {"type": "number", "example": 500},
+                  "pv": {"type": "number", "example": -10000},
+                  "fv": {"type": "number", "default": 0},
+                  "type": {"type": "number", "enum": [0, 1], "default": 0},
+                  "guess": {"type": "number", "default": 0.1}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Interest rate calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RATEResponse"
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/api/effect": {
+      "post": {
+        "summary": "Calculate Effective Annual Rate",
+        "description": "Convert nominal interest rate to effective annual rate given compounding frequency.",
+        "tags": ["TVM Calculations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["nominalRate", "npery"],
+                "properties": {
+                  "nominalRate": {"type": "number", "description": "Nominal annual rate", "example": 0.12},
+                  "npery": {"type": "number", "description": "Compounding periods per year", "example": 12}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Effective rate calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EFFECTResponse"
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/api/nominal": {
+      "post": {
+        "summary": "Calculate Nominal Rate",
+        "description": "Convert effective annual rate to nominal rate given compounding frequency.",
+        "tags": ["TVM Calculations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["effectiveRate", "npery"],
+                "properties": {
+                  "effectiveRate": {"type": "number", "description": "Effective annual rate", "example": 0.1268},
+                  "npery": {"type": "number", "description": "Compounding periods per year", "example": 12}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nominal rate calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NOMINALResponse"
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key for authentication"
+      }
+    },
+    "schemas": {
+      "NPVResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "input": {"type": "object"},
+          "result": {
+            "type": "object",
+            "properties": {
+              "npv": {"type": "number"},
+              "interpretation": {"type": "string"}
+            }
+          },
+          "timestamp": {"type": "string", "format": "date-time"}
+        }
+      },
+      "IRRResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "input": {"type": "object"},
+          "result": {
+            "type": "object",
+            "properties": {
+              "irr": {"type": "number"},
+              "irrPercent": {"type": "number"}
+            }
+          },
+          "timestamp": {"type": "string", "format": "date-time"}
+        }
+      },
+      "PMTResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "input": {"type": "object"},
+          "result": {
+            "type": "object",
+            "properties": {
+              "pmt": {"type": "number"},
+              "absolutePmt": {"type": "number"}
+            }
+          },
+          "timestamp": {"type": "string", "format": "date-time"}
+        }
+      },
+      "FVResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "input": {"type": "object"},
+          "result": {
+            "type": "object",
+            "properties": {
+              "fv": {"type": "number"}
+            }
+          },
+          "timestamp": {"type": "string", "format": "date-time"}
+        }
+      },
+      "PVResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "input": {"type": "object"},
+          "result": {
+            "type": "object",
+            "properties": {
+              "pv": {"type": "number"},
+              "absolutePv": {"type": "number"}
+            }
+          },
+          "timestamp": {"type": "string", "format": "date-time"}
+        }
+      },
+      "NPERResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "input": {"type": "object"},
+          "result": {
+            "type": "object",
+            "properties": {
+              "nper": {"type": "number"}
+            }
+          },
+          "timestamp": {"type": "string", "format": "date-time"}
+        }
+      },
+      "RATEResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "input": {"type": "object"},
+          "result": {
+            "type": "object",
+            "properties": {
+              "rate": {"type": "number"},
+              "ratePercent": {"type": "number"}
+            }
+          },
+          "timestamp": {"type": "string", "format": "date-time"}
+        }
+      },
+      "EFFECTResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "input": {"type": "object"},
+          "result": {
+            "type": "object",
+            "properties": {
+              "effectiveRate": {"type": "number"},
+              "effectiveRatePercent": {"type": "number"}
+            }
+          },
+          "timestamp": {"type": "string", "format": "date-time"}
+        }
+      },
+      "NOMINALResponse": {
+        "type": "object",
+        "properties": {
+          "success": {"type": "boolean"},
+          "input": {"type": "object"},
+          "result": {
+            "type": "object",
+            "properties": {
+              "nominalRate": {"type": "number"},
+              "nominalRatePercent": {"type": "number"}
+            }
+          },
+          "timestamp": {"type": "string", "format": "date-time"}
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {"type": "string"},
+          "message": {"type": "string"}
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request - missing or invalid parameters",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/Error"}
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized - missing or invalid API key",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/Error"}
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/Error"}
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "System",
+      "description": "System endpoints for health checks and API information"
+    },
+    {
+      "name": "TVM Calculations",
+      "description": "Time Value of Money calculation endpoints"
+    }
+  ]
+}
